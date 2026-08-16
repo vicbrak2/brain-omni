@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -5,13 +6,20 @@ from fastapi.responses import JSONResponse
 
 from app.api.webhook import router as webhook_router
 from app.core.config import settings
+from app.db.connection import close_pool, get_pool
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup / shutdown events."""
-    # Future: pool de conexiones DB, Redis ping, etc.
+    """Startup / shutdown del pool de base de datos."""
+    try:
+        await get_pool()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("BD no disponible al iniciar: %s", exc)
     yield
+    await close_pool()
 
 
 def create_app() -> FastAPI:

@@ -1,111 +1,135 @@
-"""Worker ARQ para procesar mensajes de WhatsApp de forma asíncrona.
+"""Worker ARQ: procesa mensajes de WhatsApp de forma asíncrona."""
+from __future__ import annotations
 
-ARQ usa Redis como broker. Cada job se reintenta hasta `max_tries` veces
-con backoff exponencial. Los jobs son idempotentes por diseño (wamid único).
-
-Ejecutar el worker:
-    arq app.workers.whatsapp.WorkerSettings
-"""
 import logging
 from typing import Any
 
 from arq.connections import RedisSettings
 
 from app.core.config import settings
+from app.db.connection import admin_conn, tenant_conn
+from app.db.repos import conversations as conv_repo
+from app.db.repos import messages as msg_repo
+from app.db.repos import tenants as tenant_repo
 
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Funciones de tarea (cada función es un job ARQ)
-# ---------------------------------------------------------------------------
-async def process_whatsapp_message(ctx: dict, payload: dict) -> None:
-    """Procesa un evento de mensaje de WhatsApp.
-
-    Args:
-        ctx: contexto ARQ (incluye redis pool, job_id, etc.)
-        payload: payload completo recibido desde Meta Webhooks
-    """
-    job_id: str = ctx.get("job_id", "unknown")
-
+def _extract_message(payload: dict) -> dict[str, Any] | None:
+    """Extrae el primer mensaje del payload de WhatsApp Cloud API."""
     try:
-        # Extraer datos del mensaje
-        entry = payload.get("entry", [])
-        if not entry:
-            logger.debug("[%s] Payload sin entry, ignorando", job_id)
-            return
+        entry = payload["entry"][0]
+        change = entry["changes"][0]
+        value = change["value"]
+        message = value["messages"][0]
+        metadata = value["metadata"]
+        contacts = value.get("contacts", [{}])
+        return {
+            "wamid": message["id"],
+            "from_wa_id": message["from"],
+            "phone_number_id": metadata["phone_number_id"],
+            "contact_name": contacts[0].get("profile", {}).get("name"),
+            "text": message.get("text", {}).get("body", ""),
+            "msg_type": message.get("type", "text"),
+        }
+    except (KeyError, IndexError):
+        return None
 
-        changes = entry[0].get("changes", [])
-        if not changes:
-            return
 
-        value: dict = changes[0].get("value", {})
-        messages: list[dict] = value.get("messages", [])
+async def process_whatsapp_message(ctx: dict, payload: dict) -> None:
+    """
+    Flujo completo de procesamiento:
+      1. Parsear payload WhatsApp
+      2. Resolver tenant por phone_number_id (sin RLS)
+      3. Upsert conversación
+      4. Guardar mensaje entrante (idempotente por wamid)
+      5. Obtener historial para contexto
+      6. TODO: llamar Claude API
+      7. TODO: enviar respuesta por WhatsApp API
+      8. TODO: guardar mensaje saliente
+    """
+    msg = _extract_message(payload)
+    if not msg:
+        logger.warning("Payload de WhatsApp sin mensaje extraíble")
+        return
 
-        if not messages:
-            # Puede ser un status de entrega / lectura — ignorar
-            return
+    # Solo texto por ahora
+    if msg["msg_type"] != "text" or not msg["text"]:
+        logger.info("Tipo '%s' ignorado (solo texto soportado)", msg["msg_type"])
+        return
 
-        msg = messages[0]
-        wamid: str = msg.get("id", "")          # ID único del mensaje (idempotency key)
-        phone: str = msg.get("from", "")        # Número del remitente
-        msg_type: str = msg.get("type", "")     # text, image, audio, ...
+    wamid = msg["wamid"]
+    logger.info("Procesando wamid=%s de %s", wamid, msg["from_wa_id"])
 
-        if msg_type != "text":
-            logger.info("[%s] Tipo de mensaje no soportado: %s", job_id, msg_type)
-            return
-
-        text: str = msg.get("text", {}).get("body", "")
-
-        logger.info(
-            "[%s] Mensaje recibido — wamid=%s phone=%s texto=%r",
-            job_id, wamid, phone, text[:80],
+    # 1. Resolver tenant (admin_conn bypasea RLS)
+    async with admin_conn() as conn:
+        tenant = await tenant_repo.get_tenant_by_phone_number_id(
+            conn, msg["phone_number_id"]
         )
 
-        # -------------------------------------------------------------------
-        # TODO Fase 2: Idempotency check
-        # Si wamid ya existe en Redis/DB → return early
-        # -------------------------------------------------------------------
+    if not tenant:
+        logger.error(
+            "phone_number_id=%s no registrado en ningún tenant",
+            msg["phone_number_id"],
+        )
+        return
 
-        # -------------------------------------------------------------------
-        # TODO Fase 2: Resolver tenant
-        # tenant_id = await resolver_tenant(phone)
-        # -------------------------------------------------------------------
+    tenant_id = tenant["tenant_id"]
+    phone_number_uuid = tenant["phone_number_uuid"]
 
-        # -------------------------------------------------------------------
-        # TODO Fase 3: Llamar al agente IA (LiteLLM → Claude)
-        # respuesta = await llamar_agente(tenant_id, phone, text)
-        # -------------------------------------------------------------------
+    # 2-5. Operaciones con RLS del tenant
+    async with tenant_conn(tenant_id) as conn:
+        # Upsert conversación
+        conversation = await conv_repo.get_or_create(
+            conn,
+            tenant_id=tenant_id,
+            phone_number_uuid=phone_number_uuid,
+            contact_wa_id=msg["from_wa_id"],
+            contact_name=msg["contact_name"],
+        )
+        conversation_id = conversation["id"]
 
-        # -------------------------------------------------------------------
-        # TODO Fase 2: Enviar respuesta por WhatsApp Cloud API
-        # await enviar_whatsapp(phone, respuesta)
-        # -------------------------------------------------------------------
+        # Guardar mensaje entrante (idempotente)
+        saved = await msg_repo.save(
+            conn,
+            tenant_id=tenant_id,
+            conversation_id=conversation_id,
+            wamid=wamid,
+            direction="inbound",
+            role="user",
+            content=msg["text"],
+        )
+        if saved is None:
+            logger.info("Mensaje duplicado wamid=%s — ignorado", wamid)
+            return
 
-        logger.info("[%s] Job procesado OK — wamid=%s", job_id, wamid)
+        # Historial para Claude
+        history = await msg_repo.get_history(conn, conversation_id, limit=20)
 
-    except Exception as exc:
-        logger.error("[%s] Error procesando mensaje: %s", job_id, exc, exc_info=True)
-        raise  # ARQ reintentará según max_tries
+    logger.info(
+        "Conversación %s — %d mensajes en historial. Listo para Claude.",
+        conversation_id,
+        len(history),
+    )
+
+    # TODO: llamar Claude API con historial
+    # config = await get_agent_config(...)
+    # response_text = await call_claude(config, history)
+
+    # TODO: enviar respuesta por WhatsApp Cloud API
+    # await send_whatsapp_message(tenant, msg["from_wa_id"], response_text)
+
+    # TODO: guardar mensaje saliente
+    # async with tenant_conn(tenant_id) as conn:
+    #     await msg_repo.save(conn, ..., direction="outbound",
+    #                         role="assistant", content=response_text)
 
 
-# ---------------------------------------------------------------------------
-# Configuración del worker ARQ
-# ---------------------------------------------------------------------------
 class WorkerSettings:
-    """Configuración leída por `arq` al arrancar el worker."""
-
-    functions: list[Any] = [process_whatsapp_message]
-
-    redis_settings: RedisSettings = RedisSettings.from_dsn(settings.redis_url)
-
-    # Concurrencia y timeouts
-    max_jobs: int = 10           # jobs paralelos por instancia
-    job_timeout: int = 300       # segundos antes de cancelar un job
-
-    # Reintentos
+    functions = [process_whatsapp_message]
+    redis_settings = RedisSettings.from_dsn(settings.redis_url)
+    max_jobs: int = 10
+    job_timeout: int = 300
     retry_jobs: bool = True
     max_tries: int = 3
-
-    # Health check
     health_check_interval: int = 30

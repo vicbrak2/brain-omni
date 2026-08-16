@@ -11,8 +11,9 @@ class Settings(BaseSettings):
     # Redis / ARQ
     redis_url: str = "redis://localhost:6379"
 
-    # PostgreSQL
-    database_url: str = "postgresql+asyncpg://localhost/brain_omni"
+    # PostgreSQL  (asyncpg: postgresql://user:pass@host:port/db)
+    # Railway genera DATABASE_URL automáticamente al agregar el plugin
+    database_url: str = "postgresql://localhost/brain_omni"
 
     # App
     debug: bool = False

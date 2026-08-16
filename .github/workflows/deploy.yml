@@ -27,9 +27,14 @@ jobs:
           import app.core.config
           import app.api.webhook
           import app.workers.whatsapp
+          import app.db.connection
+          import app.db.repos.tenants
+          import app.db.repos.conversations
+          import app.db.repos.messages
           print('OK: todos los modulos importados')
           "
         env:
           WHATSAPP_VERIFY_TOKEN: ci_token
           WHATSAPP_APP_SECRET: ci_secret
           REDIS_URL: redis://localhost:6379
+          DATABASE_URL: postgresql://localhost/brain_omni
