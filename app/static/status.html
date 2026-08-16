@@ -471,7 +471,7 @@ footer {
 
     <div class="progress-row">
       <span>Progreso infraestructura core</span>
-      <span>65%</span>
+      <span>75%</span>
     </div>
     <div class="progress-track">
       <div class="progress-fill" id="pbar"></div>
@@ -502,6 +502,8 @@ footer {
           <div class="item"><strong>WorkerSettings unificado</strong> — WhatsApp e Instagram corren en un solo proceso ARQ, pool compartido.</div>
           <div class="item">Migración <span class="code">instagram_accounts</span>: tenant linking, unique ig_user_id, trigger updated_at.</div>
           <div class="item">Audit automático: 27 notas, 21 módulos mapeados, vault Obsidian commiteado al repo.</div>
+          <div class="item"><strong>18 tests unitarios</strong> — parsers WA/IG + verificación HMAC-SHA256. 100 % passing.</div>
+          <div class="item">Panel de estado (<strong>esta página</strong>) desplegado en Railway en la ruta raíz <span class="code">/</span>.</div>
         </div>
       </div>
 
@@ -558,11 +560,11 @@ footer {
         </div>
       </div>
 
-      <div class="pitem crit">
-        <span class="pbadge">Tests</span>
+      <div class="pitem" style="border-left:3px solid var(--done)">
+        <span class="pbadge" style="background:var(--done-bg);color:var(--done)">Tests ✓</span>
         <div class="ptext">
-          <p>Sin cobertura de tests — crítico según auditor</p>
-          <small>Prioridad: workers, repos y signature verification</small>
+          <p>18 tests unitarios — parsers WhatsApp/IG + verificación HMAC</p>
+          <small>100 % passing · pytest · tests/test_parsers.py, tests/test_signature.py</small>
         </div>
       </div>
 
@@ -583,7 +585,7 @@ footer {
 
     <div class="audit-nums">
       <div class="anum">
-        <div class="anum-val red">1</div>
+        <div class="anum-val green">0</div>
         <div class="anum-lbl">Crítico</div>
       </div>
       <div class="anum">
@@ -595,7 +597,7 @@ footer {
         <div class="anum-lbl">Bajo</div>
       </div>
     </div>
-    <div class="audit-note">21 módulos · 27 notas generadas · abrir vault-brain-omni/ en Obsidian</div>
+    <div class="audit-note">21 módulos · 18 tests · 27 notas · vault-brain-omni/ en Obsidian</div>
   </section>
 
   <!-- STACK -->
@@ -625,7 +627,7 @@ footer {
   // Animate progress bar on load
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      document.getElementById('pbar').style.width = '65%';
+      document.getElementById('pbar').style.width = '75%';
     });
   });
 </script>
