@@ -132,14 +132,24 @@ async def process_instagram_message(ctx: dict, payload: dict) -> None:
         # Historial para Brain
         history = await msg_repo.get_history(conn, conversation_id, limit=20)
 
-    logger.info(
-        "IG conversación %s — %d mensajes en historial. Llamando a Brain.",
-        conversation_id,
-        len(history),
+        # Configuración del agente (system prompt del tenant, sin phone_number_id)
+        agent_cfg = await tenant_repo.get_agent_config(conn, tenant_id, None)
+
+    system_prompt = (
+        agent_cfg["system_prompt"]
+        if agent_cfg and agent_cfg.get("system_prompt")
+        else None
     )
 
-    # 6. Llamar a Brain (reutiliza call_claude que ahora usa Brain multi-LLM)
-    response_text = await call_claude(history)
+    logger.info(
+        "IG conversación %s — %d msgs, system_prompt=%s. Llamando a Brain.",
+        conversation_id,
+        len(history),
+        "custom" if system_prompt else "default",
+    )
+
+    # 6. Llamar a Brain con el system prompt del tenant
+    response_text = await call_claude(history, system_prompt=system_prompt)
     logger.info("Brain respondió para IG conversación %s", conversation_id)
 
     # 7. Enviar respuesta al usuario vía Instagram Messaging API

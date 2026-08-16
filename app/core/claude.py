@@ -55,16 +55,18 @@ def _build_brain() -> Brain:
     return Brain(providers=providers, app_name="brain-omni", timeout_seconds=30)
 
 
-async def call_claude(history: list[dict[str, Any]]) -> str:
+async def call_claude(
+    history: list[dict[str, Any]],
+    system_prompt: str | None = None,
+) -> str:
     """
     Llama al LLM con el historial de la conversación.
 
-    Mantiene la misma firma que la versión anterior (Anthropic SDK) para
-    que los workers de WhatsApp e Instagram no necesiten cambios.
-
     Args:
-        history: Lista de dicts con claves 'role' y 'content'.
-                 Roles válidos: 'user', 'assistant'.
+        history:       Lista de dicts con claves 'role' y 'content'.
+                       Roles válidos: 'user', 'assistant'.
+        system_prompt: Prompt del sistema específico del tenant (de agent_config).
+                       Si es None o vacío, se usa el prompt genérico por defecto.
 
     Returns:
         Texto de la respuesta generada.
@@ -72,8 +74,11 @@ async def call_claude(history: list[dict[str, Any]]) -> str:
     Raises:
         BrainError: Si todos los providers fallan.
     """
+    system = (system_prompt.strip() if system_prompt and system_prompt.strip()
+              else _SYSTEM_PROMPT)
+
     messages = [
-        {"role": "system", "content": _SYSTEM_PROMPT},
+        {"role": "system", "content": system},
         *[
             {"role": row["role"], "content": row["content"]}
             for row in history
@@ -84,5 +89,6 @@ async def call_claude(history: list[dict[str, Any]]) -> str:
     brain = _build_brain()
     text = await brain.complete(messages, max_tokens=800, temperature=0.3)
     provider = brain._last_used or "unknown"
-    logger.info("Brain respondió via %s (%d mensajes en contexto)", provider, len(history))
+    logger.info("Brain respondió via %s (%d msgs, prompt=%s)",
+                provider, len(history), "custom" if system_prompt else "default")
     return text

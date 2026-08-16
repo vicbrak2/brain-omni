@@ -108,14 +108,26 @@ async def process_whatsapp_message(ctx: dict, payload: dict) -> None:
         # Historial para Claude
         history = await msg_repo.get_history(conn, conversation_id, limit=20)
 
-    logger.info(
-        "Conversación %s — %d mensajes en historial. Llamando a Claude.",
-        conversation_id,
-        len(history),
+        # Configuración del agente (system prompt del tenant)
+        agent_cfg = await tenant_repo.get_agent_config(
+            conn, tenant_id, phone_number_uuid
+        )
+
+    system_prompt = (
+        agent_cfg["system_prompt"]
+        if agent_cfg and agent_cfg.get("system_prompt")
+        else None
     )
 
-    # 6. Llamar a Claude con el historial completo
-    response_text = await call_claude(history)
+    logger.info(
+        "Conversación %s — %d msgs, system_prompt=%s. Llamando a Brain.",
+        conversation_id,
+        len(history),
+        "custom" if system_prompt else "default",
+    )
+
+    # 6. Llamar a Brain con el historial y el system prompt del tenant
+    response_text = await call_claude(history, system_prompt=system_prompt)
     logger.info("Claude respondió para conversación %s", conversation_id)
 
     # 7. Enviar respuesta al usuario vía WhatsApp Cloud API
