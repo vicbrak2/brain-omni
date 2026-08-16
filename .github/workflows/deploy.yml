@@ -1,0 +1,81 @@
+name: CI / Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # -----------------------------------------------------------------------
+  # CI: verifica que el codigo compila e importa correctamente
+  # Corre en PRs y pushes a main
+  # -----------------------------------------------------------------------
+  ci:
+    name: Syntax & import check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verificar que todos los modulos importan correctamente
+        run: |
+          python -c "
+          import main
+          import app.core.config
+          import app.api.webhook
+          import app.workers.whatsapp
+          print('OK: todos los modulos importados')
+          "
+        env:
+          WHATSAPP_VERIFY_TOKEN: ci_token
+          WHATSAPP_APP_SECRET: ci_secret
+          REDIS_URL: redis://localhost:6379
+
+  # -----------------------------------------------------------------------
+  # Deploy API -> Railway (solo merge a main, despues de CI verde)
+  # -----------------------------------------------------------------------
+  deploy-api:
+    name: Deploy API -> Railway
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh
+
+      - name: Deploy API service
+        run: railway up --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_ID: ${{ vars.RAILWAY_API_SERVICE_ID }}
+
+  # -----------------------------------------------------------------------
+  # Deploy Worker -> Railway (mismo trigger que API)
+  # -----------------------------------------------------------------------
+  deploy-worker:
+    name: Deploy Worker -> Railway
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh
+
+      - name: Deploy Worker service
+        run: railway up --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_ID: ${{ vars.RAILWAY_WORKER_SERVICE_ID }}
