@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # Railway genera DATABASE_URL automáticamente al agregar el plugin
     database_url: str = "postgresql://localhost/brain_omni"
 
+    # Claude / Anthropic
+    anthropic_api_key: str = ""
+
     # App
     debug: bool = False
 

@@ -6,7 +6,9 @@ from typing import Any
 
 from arq.connections import RedisSettings
 
+from app.core.claude import call_claude
 from app.core.config import settings
+from app.core.whatsapp_sender import send_whatsapp_message
 from app.db.connection import admin_conn, tenant_conn
 from app.db.repos import conversations as conv_repo
 from app.db.repos import messages as msg_repo
@@ -44,9 +46,9 @@ async def process_whatsapp_message(ctx: dict, payload: dict) -> None:
       3. Upsert conversación
       4. Guardar mensaje entrante (idempotente por wamid)
       5. Obtener historial para contexto
-      6. TODO: llamar Claude API
-      7. TODO: enviar respuesta por WhatsApp API
-      8. TODO: guardar mensaje saliente
+      6. Llamar a Claude API con el historial
+      7. Enviar respuesta al usuario vía WhatsApp Cloud API
+      8. Guardar mensaje saliente en la BD
     """
     msg = _extract_message(payload)
     if not msg:
@@ -107,22 +109,33 @@ async def process_whatsapp_message(ctx: dict, payload: dict) -> None:
         history = await msg_repo.get_history(conn, conversation_id, limit=20)
 
     logger.info(
-        "Conversación %s — %d mensajes en historial. Listo para Claude.",
+        "Conversación %s — %d mensajes en historial. Llamando a Claude.",
         conversation_id,
         len(history),
     )
 
-    # TODO: llamar Claude API con historial
-    # config = await get_agent_config(...)
-    # response_text = await call_claude(config, history)
+    # 6. Llamar a Claude con el historial completo
+    response_text = await call_claude(history)
+    logger.info("Claude respondió para conversación %s", conversation_id)
 
-    # TODO: enviar respuesta por WhatsApp Cloud API
-    # await send_whatsapp_message(tenant, msg["from_wa_id"], response_text)
+    # 7. Enviar respuesta al usuario vía WhatsApp Cloud API
+    await send_whatsapp_message(
+        phone_number_id=msg["phone_number_id"],
+        to_wa_id=msg["from_wa_id"],
+        text=response_text,
+    )
 
-    # TODO: guardar mensaje saliente
-    # async with tenant_conn(tenant_id) as conn:
-    #     await msg_repo.save(conn, ..., direction="outbound",
-    #                         role="assistant", content=response_text)
+    # 8. Guardar mensaje saliente en la BD
+    async with tenant_conn(tenant_id) as conn:
+        await msg_repo.save(
+            conn,
+            tenant_id=tenant_id,
+            conversation_id=conversation_id,
+            wamid=None,          # los mensajes salientes no tienen wamid entrante
+            direction="outbound",
+            role="assistant",
+            content=response_text,
+        )
 
 
 class WorkerSettings:
