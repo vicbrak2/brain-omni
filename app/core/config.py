@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     # Redis / ARQ
     redis_url: str = "redis://localhost:6379"
 
+    # PostgreSQL
+    database_url: str = "postgresql+asyncpg://localhost/brain_omni"
+
     # App
     debug: bool = False
 
