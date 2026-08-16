@@ -1,4 +1,4 @@
-name: CI / Deploy
+name: CI
 
 on:
   push:
@@ -33,32 +33,3 @@ jobs:
           WHATSAPP_VERIFY_TOKEN: ci_token
           WHATSAPP_APP_SECRET: ci_secret
           REDIS_URL: redis://localhost:6379
-
-  deploy-api:
-    name: Deploy API -> Railway
-    needs: ci
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Railway deploy (API)
-        run: |
-          curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "$RAILWAY_DEPLOY_HOOK_API" | grep -q "^2" \
-            && echo "Deploy API disparado OK" \
-            || (echo "ERROR: deploy hook fallo" && exit 1)
-        env:
-          RAILWAY_DEPLOY_HOOK_API: ${{ secrets.RAILWAY_DEPLOY_HOOK_API }}
-
-  deploy-worker:
-    name: Deploy Worker -> Railway
-    needs: ci
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Railway deploy (Worker)
-        run: |
-          curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "$RAILWAY_DEPLOY_HOOK_WORKER" | grep -q "^2" \
-            || (echo "Hook no configurado, omitiendo" && exit 0)
-        env:
-          RAILWAY_DEPLOY_HOOK_WORKER: ${{ secrets.RAILWAY_DEPLOY_HOOK_WORKER }}
