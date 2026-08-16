@@ -1,0 +1,80 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": true,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "tag:#async-bug",
+      "color": {
+        "a": 1,
+        "rgb": 16711680
+      }
+    },
+    {
+      "query": "tag:#circular",
+      "color": {
+        "a": 1,
+        "rgb": 16711680
+      }
+    },
+    {
+      "query": "tag:#faltante",
+      "color": {
+        "a": 1,
+        "rgb": 16714512
+      }
+    },
+    {
+      "query": "tag:#complejidad",
+      "color": {
+        "a": 1,
+        "rgb": 16754944
+      }
+    },
+    {
+      "query": "tag:#god-class",
+      "color": {
+        "a": 1,
+        "rgb": 16754944
+      }
+    },
+    {
+      "query": "tag:#deuda-tecnica",
+      "color": {
+        "a": 1,
+        "rgb": 16776960
+      }
+    },
+    {
+      "query": "tag:#m\u00f3dulo",
+      "color": {
+        "a": 1,
+        "rgb": 5614830
+      }
+    },
+    {
+      "query": "tag:#proyecto",
+      "color": {
+        "a": 1,
+        "rgb": 3394611
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1.2,
+  "lineSizeMultiplier": 1,
+  "scale": 1,
+  "close": false,
+  "collapse-forces": false,
+  "centerStrength": 0.518,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "animate": false
+}
