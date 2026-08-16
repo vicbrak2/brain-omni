@@ -140,6 +140,7 @@ async def process_whatsapp_message(ctx: dict, payload: dict) -> None:
 
 class WorkerSettings:
     functions = [process_whatsapp_message]
+    # Instagram worker se registra junto con WhatsApp para compartir el pool ARQ
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs: int = 10
     job_timeout: int = 300
