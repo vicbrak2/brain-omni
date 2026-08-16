@@ -40,18 +40,14 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Railway CLI
-        run: curl -fsSL https://railway.app/install.sh | sh
-
-      - name: Deploy API service
+      - name: Trigger Railway deploy (API)
         run: |
-          railway link -p $RAILWAY_PROJECT_ID -e production -s sublime-clarity
-          railway up --detach
+          curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "$RAILWAY_DEPLOY_HOOK_API" | grep -q "^2" \
+            && echo "Deploy API disparado OK" \
+            || (echo "ERROR: deploy hook fallo" && exit 1)
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+          RAILWAY_DEPLOY_HOOK_API: ${{ secrets.RAILWAY_DEPLOY_HOOK_API }}
 
   deploy-worker:
     name: Deploy Worker -> Railway
@@ -59,15 +55,10 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Railway CLI
-        run: curl -fsSL https://railway.app/install.sh | sh
-
-      - name: Deploy Worker service
+      - name: Trigger Railway deploy (Worker)
         run: |
-          railway link -p $RAILWAY_PROJECT_ID -e production -s worker
-          railway up --detach
+          curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "$RAILWAY_DEPLOY_HOOK_WORKER" | grep -q "^2" \
+            || (echo "Hook no configurado, omitiendo" && exit 0)
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+          RAILWAY_DEPLOY_HOOK_WORKER: ${{ secrets.RAILWAY_DEPLOY_HOOK_WORKER }}
