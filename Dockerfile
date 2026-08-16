@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Imagen optimizada para Cloud Run (puerto 8080, non-root, multi-stage)
+# Imagen unificada para API y worker — modo controlado por START_MODE
 
 # ── Stage 1: dependencias ──────────────────────────────────────────────────
 FROM python:3.12-slim AS builder
@@ -14,7 +14,7 @@ RUN pip install --upgrade pip \
 # ── Stage 2: imagen final ──────────────────────────────────────────────────
 FROM python:3.12-slim
 
-# Usuario no-root (buena práctica en contenedores)
+# Usuario no-root
 RUN addgroup --system app && adduser --system --ingroup app app
 
 WORKDIR /app
@@ -27,9 +27,15 @@ COPY --chown=app:app . .
 
 USER app
 
-# Cloud Run espera el servidor en el puerto $PORT (default 8080)
+# START_MODE=api  → uvicorn (API service, default)
+# START_MODE=worker → arq worker
+ENV START_MODE=api
 ENV PORT=8080
 EXPOSE 8080
 
-# Uvicorn en modo producción — 1 worker porque Cloud Run escala por instancias
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1"]
+CMD ["sh", "-c", \
+  "if [ \"$START_MODE\" = \"worker\" ]; then \n\
+    arq app.workers.whatsapp.WorkerSettings; \n\
+  else \n\
+    uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1; \n\
+  fi"]
