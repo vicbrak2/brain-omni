@@ -35,6 +35,34 @@ async def get_tenant_by_phone_number_id(
     return dict(row) if row else None
 
 
+async def get_tenant_by_ig_user_id(
+    conn: asyncpg.Connection,
+    ig_user_id: str,
+) -> dict[str, Any] | None:
+    """
+    Resuelve el tenant a partir del ig_user_id de nuestra cuenta IG Business.
+    Requiere la tabla instagram_accounts (migración pendiente).
+    Debe ejecutarse con admin_conn() — sin RLS activo.
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT
+            t.id               AS tenant_id,
+            t.slug             AS tenant_slug,
+            t.name             AS tenant_name,
+            ia.id              AS ig_account_uuid,
+            ia.ig_user_id      AS ig_user_id
+        FROM instagram_accounts ia
+        JOIN tenants t ON t.id = ia.tenant_id
+        WHERE ia.ig_user_id = $1
+          AND ia.is_active   = TRUE
+          AND t.is_active    = TRUE
+        """,
+        ig_user_id,
+    )
+    return dict(row) if row else None
+
+
 async def get_agent_config(
     conn: asyncpg.Connection,
     tenant_id: str,

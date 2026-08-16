@@ -8,15 +8,26 @@ class Settings(BaseSettings):
     whatsapp_api_token: str = ""
     whatsapp_phone_id: str = ""
 
+    # Instagram / Messenger API para DMs
+    # INSTAGRAM_ACCESS_TOKEN: token de larga duración con instagram_manage_messages
+    # INSTAGRAM_APP_SECRET: para validar firma del webhook (X-Hub-Signature-256)
+    # INSTAGRAM_VERIFY_TOKEN: token de verificación del webhook en Meta Business
+    instagram_access_token: str = ""
+    instagram_app_secret: str = ""
+    instagram_verify_token: str = "dev_ig_verify_token"
+
+    # LLM Providers (Brain chain: openrouter → cerebras → hf → groq)
+    openrouter_api_key: str = ""
+    cerebras_api_key: str = ""
+    hf_token: str = ""
+    groq_api_key: str = ""
+
     # Redis / ARQ
     redis_url: str = "redis://localhost:6379"
 
-    # PostgreSQL  (asyncpg: postgresql://user:pass@host:port/db)
+    # PostgreSQL (asyncpg: postgresql://user:pass@host:port/db)
     # Railway genera DATABASE_URL automáticamente al agregar el plugin
     database_url: str = "postgresql://localhost/brain_omni"
-
-    # Claude / Anthropic
-    anthropic_api_key: str = ""
 
     # App
     debug: bool = False

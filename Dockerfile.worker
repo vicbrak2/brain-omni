@@ -14,4 +14,4 @@ COPY --from=builder /install /usr/local
 COPY --chown=app:app . .
 USER app
 
-CMD ["arq", "app.workers.whatsapp.WorkerSettings"]
+CMD ["arq", "app.workers.settings.WorkerSettings"]
