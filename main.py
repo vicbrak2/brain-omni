@@ -36,7 +36,19 @@ def create_app() -> FastAPI:
 
     @app.get("/health", tags=["infra"])
     async def health() -> JSONResponse:
-        return JSONResponse({"status": "ok", "version": "0.1.0"})
+        db_status = "ok"
+        try:
+            pool = await get_pool()
+            await pool.fetchval("SELECT 1")
+        except Exception as exc:  # noqa: BLE001
+            db_status = f"error: {exc}"
+
+        status = "ok" if db_status == "ok" else "degraded"
+        code = 200 if status == "ok" else 503
+        return JSONResponse(
+            {"status": status, "version": "0.1.0", "db": db_status},
+            status_code=code,
+        )
 
     return app
 
