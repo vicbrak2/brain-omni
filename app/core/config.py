@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     # App
     debug: bool = False
 
+    # Panel de administración (GET /panel)
+    # Genera con: openssl rand -hex 32
+    admin_api_token: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

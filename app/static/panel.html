@@ -1,0 +1,1010 @@
+<title>brain-omni panel</title>
+
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --accent:      #1EBA8C;
+  --accent-dim:  #15926E;
+  --accent-bg:   rgba(30,186,140,.10);
+
+  --bg:          #F0F4F2;
+  --surface:     #FFFFFF;
+  --surface-2:   #E8EFEB;
+  --border:      #D0DDD6;
+
+  --text:        #111C17;
+  --text-muted:  #5A7A68;
+  --text-faint:  #9AB5A5;
+
+  --danger:      #DC2626;
+  --danger-bg:   rgba(220,38,38,.09);
+  --warn:        #D97706;
+
+  --sidebar-w:   224px;
+  --radius:      6px;
+
+  --font-ui:     system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:   ui-monospace, 'SF Mono', Menlo, 'Consolas', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0C1210;
+    --surface:   #141D19;
+    --surface-2: #1B2820;
+    --border:    #243028;
+    --text:      #E4EDE8;
+    --text-muted:#7A9A88;
+    --text-faint:#3A5244;
+    --accent-bg: rgba(30,186,140,.12);
+    --danger-bg: rgba(220,38,38,.12);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:        #0C1210;
+  --surface:   #141D19;
+  --surface-2: #1B2820;
+  --border:    #243028;
+  --text:      #E4EDE8;
+  --text-muted:#7A9A88;
+  --text-faint:#3A5244;
+  --accent-bg: rgba(30,186,140,.12);
+  --danger-bg: rgba(220,38,38,.12);
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+button { cursor: pointer; font: inherit; border: none; }
+input, textarea, select { font: inherit; color: inherit; }
+a { color: var(--accent); text-decoration: none; }
+
+/* ─── LOGIN GATE ─── */
+#login-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px;
+  width: 100%;
+  max-width: 380px;
+}
+.login-title {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.login-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.field label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.field input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .15s;
+}
+.field input:focus { border-color: var(--accent); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity .15s, background .15s;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  width: 100%;
+}
+.btn-primary:hover { opacity: .88; }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(220,38,38,.2);
+}
+
+/* ─── APP SHELL ─── */
+#app { display: none; height: 100vh; overflow: hidden; }
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  height: 100vh;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-head {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.brand {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .04em;
+  margin-bottom: 10px;
+}
+
+.btn-new {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--accent-bg);
+  border: 1px dashed rgba(30,186,140,.35);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+  transition: background .15s;
+}
+.btn-new:hover { background: rgba(30,186,140,.17); }
+
+.tenant-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.tenant-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .12s;
+  border: 1px solid transparent;
+}
+.tenant-item:hover { background: var(--surface-2); }
+.tenant-item.active {
+  background: var(--accent-bg);
+  border-color: rgba(30,186,140,.25);
+}
+
+.tenant-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.tenant-item.active .tenant-avatar {
+  background: var(--accent);
+  color: #fff;
+}
+
+.tenant-meta { min-width: 0; }
+.tenant-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tenant-plan {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: .03em;
+}
+
+.sidebar-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.logout-btn {
+  font-size: 11px;
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.logout-btn:hover { color: var(--text-muted); }
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.topbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* ─── EMPTY STATE ─── */
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-faint);
+}
+.empty-icon {
+  font-size: 2rem;
+  opacity: .5;
+}
+.empty-text { font-size: 13px; }
+
+/* ─── FORM PANEL ─── */
+.form-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px;
+}
+
+/* ─── SECTIONS ─── */
+.form-section {
+  margin-bottom: 28px;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+}
+
+/* ─── TEMPLATES ─── */
+.templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.tpl-chip {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .12s;
+}
+.tpl-chip:hover {
+  background: var(--accent-bg);
+  border-color: rgba(30,186,140,.35);
+  color: var(--accent);
+}
+
+/* ─── PROMPT TEXTAREA ─── */
+.prompt-wrap {
+  position: relative;
+}
+.prompt-area {
+  width: 100%;
+  min-height: 200px;
+  max-height: 380px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  color: var(--text);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.06);
+  transition: border-color .15s, box-shadow .15s;
+}
+.prompt-area:focus {
+  border-color: var(--accent);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.06), 0 0 0 3px rgba(30,186,140,.12);
+}
+.char-count {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+.char-count.warn { color: var(--warn); }
+
+/* ─── PARAM ROW ─── */
+.param-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.param-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.param-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}
+
+.param-val {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.param-card input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  height: 3px;
+}
+
+.param-card input[type="number"] {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 13px;
+  outline: none;
+}
+.param-card input[type="number"]:focus { border-color: var(--accent); }
+
+/* ─── HANDOFF ─── */
+.handoff-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 20px;
+  transition: background .2s;
+  cursor: pointer;
+}
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 3px;
+  left: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle input:checked + .toggle-track::after { transform: translateX(16px); }
+
+.toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.handoff-threshold {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+.handoff-threshold label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.handoff-threshold input {
+  width: 64px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 5px 8px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+}
+.handoff-threshold input:focus { border-color: var(--accent); }
+
+/* ─── NEW TENANT FORM (inline) ─── */
+.new-tenant-form {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 8px;
+  gap: 10px;
+  flex-direction: column;
+}
+.new-tenant-form.open { display: flex; }
+.new-tenant-form .field { margin-bottom: 0; }
+.new-tenant-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* ─── TOAST ─── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--text);
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+  z-index: 100;
+  max-width: 320px;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+#toast.success { background: var(--accent-dim); }
+#toast.error   { background: var(--danger); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .param-row { grid-template-columns: 1fr 1fr; }
+  .form-scroll { padding: 16px; }
+  .topbar { padding: 12px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+
+<!-- LOGIN -->
+<div id="login-gate">
+  <div class="login-card">
+    <div class="login-title">brain-omni · panel</div>
+    <div class="login-sub">Ingresa tu token de administración para continuar.</div>
+    <div class="field">
+      <label for="token-input">Token</label>
+      <input type="password" id="token-input" placeholder="••••••••••••••••" autocomplete="current-password" />
+    </div>
+    <div id="login-error" style="font-size:12px;color:var(--danger);margin-bottom:10px;display:none"></div>
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="brand">brain-omni</div>
+        <button class="btn-new" onclick="toggleNewForm()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Nuevo cliente
+        </button>
+        <div class="new-tenant-form" id="new-form">
+          <div class="field">
+            <label>Nombre</label>
+            <input type="text" id="nf-name" placeholder="Clínica Dental San Martín" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>Slug</label>
+              <input type="text" id="nf-slug" placeholder="clinica-san-martin" />
+            </div>
+            <div class="field">
+              <label>Plan</label>
+              <select id="nf-plan" style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 8px;outline:none">
+                <option value="free">Free</option>
+                <option value="starter" selected>Starter</option>
+                <option value="pro">Pro</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1" onclick="createTenant()">Crear</button>
+            <button class="btn btn-ghost" onclick="toggleNewForm()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+      <div class="tenant-list" id="tenant-list">
+        <div style="padding:20px;text-align:center;color:var(--text-faint);font-size:12px">Cargando…</div>
+      </div>
+      <div class="sidebar-foot">
+        <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="main-panel">
+      <div class="empty" id="empty-state">
+        <div class="empty-icon">←</div>
+        <div class="empty-text">Selecciona un cliente para configurarlo</div>
+      </div>
+
+      <!-- CONFIG FORM (hidden until tenant selected) -->
+      <div id="config-form" style="display:none;flex-direction:column;height:100%">
+        <div class="topbar">
+          <div class="topbar-title" id="form-title">—</div>
+          <div class="topbar-actions">
+            <button class="btn btn-ghost" onclick="loadConfig(currentTenantId)">Revertir</button>
+            <button class="btn btn-primary" id="save-btn" onclick="saveConfig()">Guardar</button>
+          </div>
+        </div>
+
+        <div class="form-scroll">
+
+          <!-- SYSTEM PROMPT -->
+          <div class="form-section">
+            <div class="section-label">Instrucciones del asistente</div>
+            <div class="templates" id="templates"></div>
+            <div class="prompt-wrap">
+              <textarea class="prompt-area" id="system-prompt" placeholder="Describe aquí cómo debe comportarse el asistente de este cliente…" oninput="updateCharCount()"></textarea>
+              <span class="char-count" id="char-count">0 / 8000</span>
+            </div>
+          </div>
+
+          <!-- PARAMS -->
+          <div class="form-section">
+            <div class="section-label">Parámetros del modelo</div>
+            <div class="param-row">
+              <div class="param-card">
+                <div class="param-label">Temperatura</div>
+                <span class="param-val" id="temp-val">0.70</span>
+                <input type="range" min="0" max="1" step="0.05" id="temperature"
+                  oninput="document.getElementById('temp-val').textContent=parseFloat(this.value).toFixed(2)" />
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-faint);margin-top:4px;font-family:var(--font-mono)">
+                  <span>preciso</span><span>creativo</span>
+                </div>
+              </div>
+              <div class="param-card">
+                <div class="param-label">Máx. tokens</div>
+                <input type="number" id="max-tokens" min="64" max="4096" step="64" value="1024"
+                  style="font-size:1.1rem;font-weight:600;font-family:var(--font-mono);font-variant-numeric:tabular-nums" />
+                <div style="font-size:10px;color:var(--text-faint);margin-top:6px;font-family:var(--font-mono)">64 – 4096</div>
+              </div>
+              <div class="param-card">
+                <div class="param-label">Historial</div>
+                <span class="param-val">20</span>
+                <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Últimos 20 mensajes usados como contexto</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HANDOFF -->
+          <div class="form-section">
+            <div class="section-label">Derivación a humano</div>
+            <div class="handoff-row">
+              <div class="toggle-wrap">
+                <label class="toggle">
+                  <input type="checkbox" id="handoff-enabled" onchange="toggleHandoffUI()" />
+                  <span class="toggle-track"></span>
+                </label>
+                <span class="toggle-label">Activar derivación</span>
+              </div>
+              <div class="handoff-threshold" id="threshold-wrap">
+                <label for="handoff-threshold">Escalar después de</label>
+                <input type="number" id="handoff-threshold" min="1" max="50" value="5" />
+                <span style="font-size:12px;color:var(--text-muted)">mensajes sin resolver</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /form-scroll -->
+      </div><!-- /config-form -->
+    </main>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Templates ────────────────────────────────────────────────────────────────
+const TEMPLATES = [
+  {
+    label: 'Clínica Dental',
+    prompt: `Eres el asistente virtual de esta clínica dental. Responde en español, de forma amable y profesional.
+
+Horarios: Lunes a Viernes 9:00–19:00, Sábado 9:00–13:00.
+Servicios: limpieza ($35.000), ortodoncia, implantes, urgencias dentales.
+
+Para agendar una cita: solicita el nombre completo, RUT y tipo de consulta.
+Para urgencias: indica que puede llamar directamente al número de la clínica.
+
+Si el cliente necesita hablar con alguien del equipo, indícale que lo derivarás de inmediato.
+Mantén las respuestas breves y claras para WhatsApp.`
+  },
+  {
+    label: 'Restaurante',
+    prompt: `Eres el asistente de reservas y consultas de este restaurante. Responde siempre en español, con tono cercano y entusiasta.
+
+Para reservas: solicitar fecha, hora, número de personas y nombre.
+Horarios: Martes a Domingo 13:00–16:00 y 20:00–23:30. Lunes cerrado.
+Menú disponible en nuestra web o consultando directamente.
+
+Entrega delivery: plataformas Rappi y Uber Eats.
+Para consultas sobre alergias o menú especial, deriva al equipo humano.`
+  },
+  {
+    label: 'Gimnasio',
+    prompt: `Eres el asistente del gimnasio. Tu tono es motivador, directo y amigable.
+
+Planes disponibles:
+- Básico $25.000/mes (acceso sala pesas)
+- Full $40.000/mes (todas las clases + pesas)
+- VIP $60.000/mes (personal trainer 2x/semana + todo)
+
+Clases: spinning, yoga, crossfit, pilates — horarios en nuestra web o Instagram.
+Horario: Lunes a Viernes 6:00–22:00, Sábado y Domingo 8:00–18:00.
+
+Para inscripciones o tour del gimnasio, agenda directamente por aquí.`
+  },
+  {
+    label: 'Taller Mecánico',
+    prompt: `Eres el asistente del taller mecánico. Responde en español, con trato directo y honesto.
+
+Servicios: mantención preventiva, frenos, suspensión, motor, diagnóstico computarizado, electricidad automotriz.
+
+Para presupuestos: preguntar marca, modelo, año del vehículo y descripción del problema.
+Horario: Lunes a Viernes 8:30–18:30, Sábado 9:00–13:00.
+
+Tiempo estimado de respuesta de presupuestos: 30 minutos en horario de atención.
+Si es urgencia mecánica en ruta, indica que puede llamar directamente.`
+  },
+  {
+    label: 'Inmobiliaria',
+    prompt: `Eres el asistente de esta inmobiliaria. Responde en español, con tono profesional y de confianza.
+
+Puedes ayudar con: búsqueda de propiedades en arriendo o venta, coordinar visitas, informar sobre el proceso de arriendo o compra.
+
+Para coordinar una visita: solicitar nombre, teléfono, tipo de propiedad buscada y sector de interés.
+Para cotizar propiedades: indicar que uno de nuestros agentes se comunicará en menos de 2 horas hábiles.
+
+No entregues precios sin consultar al agente asignado.`
+  }
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let token = '';
+let currentTenantId = null;
+let currentTenantName = '';
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+(function init() {
+  const saved = sessionStorage.getItem('admin_token');
+  if (saved) { token = saved; showApp(); }
+
+  // Render templates
+  const tplContainer = document.getElementById('templates');
+  TEMPLATES.forEach(t => {
+    const chip = document.createElement('button');
+    chip.className = 'tpl-chip';
+    chip.textContent = t.label;
+    chip.onclick = () => {
+      document.getElementById('system-prompt').value = t.prompt;
+      updateCharCount();
+    };
+    tplContainer.appendChild(chip);
+  });
+
+  // Enter key on login
+  document.getElementById('token-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // Auto-slug from name
+  document.getElementById('nf-name').addEventListener('input', e => {
+    const slug = e.target.value.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    document.getElementById('nf-slug').value = slug;
+  });
+})();
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const input = document.getElementById('token-input').value.trim();
+  if (!input) return;
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'Verificando…';
+
+  const res = await fetch('/api/admin/tenants', {
+    headers: { Authorization: `Bearer ${input}` }
+  }).catch(() => null);
+
+  if (res && res.ok) {
+    token = input;
+    sessionStorage.setItem('admin_token', token);
+    showApp(await res.json());
+  } else {
+    const err = document.getElementById('login-error');
+    err.textContent = res?.status === 401 ? 'Token incorrecto.' : 'Error de conexión. ¿El servidor está activo?';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('admin_token');
+  location.reload();
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+function showApp(tenants) {
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  if (tenants) renderTenants(tenants);
+  else loadTenants();
+}
+
+async function loadTenants() {
+  const res = await api('/api/admin/tenants');
+  if (res.ok) renderTenants(await res.json());
+}
+
+function renderTenants(tenants) {
+  const list = document.getElementById('tenant-list');
+  if (!tenants.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-faint);font-size:12px">Sin clientes aún.<br>Crea el primero ↑</div>';
+    return;
+  }
+  list.innerHTML = tenants.map(t => `
+    <div class="tenant-item ${t.id === currentTenantId ? 'active' : ''}"
+         onclick="selectTenant('${t.id}','${escHtml(t.name)}','${t.plan}')">
+      <div class="tenant-avatar">${escHtml(t.name.slice(0,2))}</div>
+      <div class="tenant-meta">
+        <div class="tenant-name">${escHtml(t.name)}</div>
+        <div class="tenant-plan">${t.plan}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function selectTenant(id, name, plan) {
+  currentTenantId = id;
+  currentTenantName = name;
+  document.querySelectorAll('.tenant-item').forEach(el => el.classList.remove('active'));
+  event?.currentTarget?.classList.add('active');
+  document.getElementById('form-title').textContent = name;
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('config-form').style.display = 'flex';
+  await loadConfig(id);
+}
+
+async function loadConfig(id) {
+  const res = await api(`/api/admin/tenants/${id}/config`);
+  if (!res.ok) { toast('Error cargando configuración', 'error'); return; }
+  const cfg = await res.json();
+  document.getElementById('system-prompt').value = cfg.system_prompt || '';
+  document.getElementById('temperature').value = cfg.temperature ?? 0.70;
+  document.getElementById('temp-val').textContent = (cfg.temperature ?? 0.70).toFixed(2);
+  document.getElementById('max-tokens').value = cfg.max_tokens ?? 1024;
+  document.getElementById('handoff-enabled').checked = cfg.handoff_enabled ?? false;
+  document.getElementById('handoff-threshold').value = cfg.handoff_threshold ?? 5;
+  updateCharCount();
+  toggleHandoffUI();
+}
+
+async function saveConfig() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  const body = {
+    system_prompt:     document.getElementById('system-prompt').value,
+    temperature:       parseFloat(document.getElementById('temperature').value),
+    max_tokens:        parseInt(document.getElementById('max-tokens').value),
+    handoff_enabled:   document.getElementById('handoff-enabled').checked,
+    handoff_threshold: parseInt(document.getElementById('handoff-threshold').value),
+  };
+
+  const res = await api(`/api/admin/tenants/${currentTenantId}/config`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Guardar';
+
+  if (res.ok) toast('Configuración guardada', 'success');
+  else toast('Error al guardar', 'error');
+}
+
+// ── New tenant ────────────────────────────────────────────────────────────────
+function toggleNewForm() {
+  const f = document.getElementById('new-form');
+  f.classList.toggle('open');
+  if (f.classList.contains('open')) document.getElementById('nf-name').focus();
+}
+
+async function createTenant() {
+  const name = document.getElementById('nf-name').value.trim();
+  const slug = document.getElementById('nf-slug').value.trim();
+  const plan = document.getElementById('nf-plan').value;
+  if (!name || !slug) { toast('Completa nombre y slug', 'error'); return; }
+
+  const res = await api('/api/admin/tenants', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, slug, plan }),
+  });
+
+  if (res.ok) {
+    const t = await res.json();
+    toast(`${name} creado`, 'success');
+    document.getElementById('nf-name').value = '';
+    document.getElementById('nf-slug').value = '';
+    toggleNewForm();
+    await loadTenants();
+    await selectTenant(t.id, t.name, t.plan);
+  } else {
+    const err = await res.json().catch(() => ({}));
+    toast(err.detail || 'Error al crear cliente', 'error');
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function updateCharCount() {
+  const ta = document.getElementById('system-prompt');
+  const cc = document.getElementById('char-count');
+  const len = ta.value.length;
+  cc.textContent = `${len.toLocaleString()} / 8000`;
+  cc.classList.toggle('warn', len > 7200);
+}
+
+function toggleHandoffUI() {
+  const enabled = document.getElementById('handoff-enabled').checked;
+  document.getElementById('threshold-wrap').style.opacity = enabled ? '1' : '.4';
+  document.getElementById('handoff-threshold').disabled = !enabled;
+}
+
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function api(url, opts = {}) {
+  return fetch(url, {
+    ...opts,
+    headers: { Authorization: `Bearer ${token}`, ...opts.headers },
+  }).catch(() => ({ ok: false, json: async () => ({}) }));
+}
+
+let toastTimer;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+}
+</script>
