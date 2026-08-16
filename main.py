@@ -10,6 +10,8 @@ from app.db.connection import close_pool, get_pool
 
 logger = logging.getLogger(__name__)
 
+VERSION = "0.2.0"
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,7 +28,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Brain Omni",
         description="Agente omnicanal IA para PYMEs chilenas",
-        version="0.1.0",
+        version=VERSION,
         docs_url="/docs" if settings.debug else None,
         redoc_url=None,
         lifespan=lifespan,
@@ -46,7 +48,7 @@ def create_app() -> FastAPI:
         status = "ok" if db_status == "ok" else "degraded"
         code = 200 if status == "ok" else 503
         return JSONResponse(
-            {"status": status, "version": "0.1.0", "db": db_status},
+            {"status": status, "version": VERSION, "db": db_status},
             status_code=code,
         )
 
