@@ -1,0 +1,74 @@
+name: Vault Audit
+
+on:
+  push:
+    branches-ignore:
+      - "dependabot/**"
+
+jobs:
+  audit:
+    name: Actualizar Obsidian vault
+    runs-on: ubuntu-latest
+    # Evitar loop: no correr si el commit viene de este mismo job
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Checkout completo para poder hacer push
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # El auditor solo usa stdlib — sin pip install
+      - name: Correr auditor (vault-brain-omni)
+        run: python tools/auditor.py . --output vault-brain-omni
+
+      - name: Actualizar fecha en vault/00 - Index.md
+        run: |
+          python - <<'EOF'
+          import re, subprocess
+          from pathlib import Path
+          from datetime import date
+
+          idx = Path("vault/00 - Index.md")
+          if not idx.exists():
+              exit(0)
+
+          # Leer versión desde main.py
+          ver = "?"
+          mp = Path("main.py")
+          if mp.exists():
+              m = re.search(r'VERSION\s*=\s*["\']([^"\']+)["\']', mp.read_text())
+              if m:
+                  ver = m.group(1)
+
+          text = idx.read_text(encoding="utf-8")
+          today = date.today().isoformat()
+
+          # Actualizar o añadir línea de versión/fecha al final
+          text = re.sub(r'> \*\*Versión actual:.*', f'> **Versión actual:** v{ver} — RAG con pgvector  ', text)
+          text = re.sub(r'> \*\*Última actualización:.*', f'> **Última actualización:** {today}', text)
+
+          idx.write_text(text, encoding="utf-8")
+          print(f"Index actualizado: v{ver} · {today}")
+          EOF
+
+      - name: Commit y push si hay cambios
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add vault-brain-omni/ vault/
+          # Sólo hacer commit si hay diferencias reales
+          if git diff --cached --quiet; then
+            echo "Sin cambios en el vault — nada que commitear"
+          else
+            git commit -m "chore(vault): auto-update Obsidian vault [skip ci]"
+            git push
+          fi
