@@ -7,7 +7,7 @@ severidad: media
 # Todo Pendiente
 
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
-**Total:** 4 problema(s)  
+**Total:** 9 problema(s)  
 #deuda-tecnica
 
 ## Detalle
@@ -16,3 +16,8 @@ severidad: media
 - 🟡 `app/core/providers.py:78` — else "sin content (el modelo dejó todo en 'reasoning' interno, no es una respuesta)")
 - 🟡 `app/core/providers.py:87` — # Alias retro-compatible: todo provider por defecto es OpenAI-compatible.
 - 🟡 `app/core/providers.py:116` — # prompts largos gasta todo el max_tokens en "pensar" (content vacio) o
+- 🟡 `tools/auditor.py:33` — TODO_PATTERN = re.compile(r"\b(TODO|FIXME|HACK|XXX|BUG|TEMP)\b", re.IGNORECASE)
+- 🟡 `tools/auditor.py:335` — issues.append({"tipo": "todo-pendiente", "severidad": "media",
+- 🟡 `tools/auditor.py:509` — "todo-pendiente":    "deuda-tecnica",
+- 🟡 `tools/auditor.py:513` — "async-bloqueante":  "async-bug",
+- 🟡 `tools/auditor.py:727` — {"query": "tag:#async-bug",     "color": {"a": 1, "rgb": 16711680}},

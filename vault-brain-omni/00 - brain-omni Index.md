@@ -5,8 +5,8 @@ proyecto: brain-omni
 
 # brain-omni — Auditoría v2
 
-**Fecha:** 2026-08-17T02:20:50  
-**Ruta:** `/workspace/brain-omni`  
+**Fecha:** 2026-08-17T03:13:44  
+**Ruta:** `/home/runner/work/brain-omni/brain-omni`  
 #proyecto #auditoria
 
 ## Resumen
@@ -14,9 +14,9 @@ proyecto: brain-omni
 | Severidad | Cantidad |
 |-----------|---------:|
 | 🔴 Alta   | 0   |
-| 🟡 Media  | 5  |
-| 🟢 Baja   | 3   |
-| **Total** | **8** |
+| 🟡 Media  | 12  |
+| 🟢 Baja   | 5   |
+| **Total** | **17** |
 
 ## Análisis incluido
 

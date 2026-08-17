@@ -54,6 +54,8 @@ proyecto: brain-omni
   - 📄 `conftest.py`
   - 📄 `test_parsers.py`
   - 📄 `test_signature.py`
+- 📁 `tools`
+  - 📄 `auditor.py`
 - 📁 `vault`
   - 📁 `canales`
     - 📄 `Chat Web.md`
@@ -63,6 +65,7 @@ proyecto: brain-omni
     - 📄 `WhatsApp.md`
   - 📁 `roadmap`
     - 📄 `Fase 1 — MVP.md`
+    - 📄 `Fase 2 — Expansión de Canales.md`
   - 📄 `00 - Index.md`
   - 📄 `Agente Omnicanal.md`
   - 📄 `Arquitectura.md`
@@ -102,9 +105,7 @@ proyecto: brain-omni
   - 📄 `Estructura del Proyecto.md`
   - 📄 `Funcion Larga.md`
   - 📄 `Grafo de Módulos.md`
-  - 📄 `Import Circular.md`
   - 📄 `Todo Pendiente.md`
-- 📄 `brain-omni-auditoria.json`
 - 📄 `Dockerfile`
 - 📄 `Dockerfile.worker`
 - 📄 `main.py`
