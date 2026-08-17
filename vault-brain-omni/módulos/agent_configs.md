@@ -1,23 +1,20 @@
 ---
 tags: [módulo, brain-omni]
-módulo: app.core.embeddings
-paquete: app.core
+módulo: app.db.repos.agent_configs
+paquete: app.db.repos
 ---
 
-# embeddings
+# agent_configs
 
-**Módulo:** `app.core.embeddings`  
+**Módulo:** `app.db.repos.agent_configs`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-- [[config]]
+_Sin dependencias locales_
 
 ## Importado por
 
-- [[api.admin]]
 - [[facebook]]
-- [[instagram]]
 - [[tiktok]]
-- [[whatsapp]]

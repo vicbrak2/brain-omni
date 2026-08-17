@@ -1,23 +1,20 @@
 ---
 tags: [módulo, brain-omni]
-módulo: app.core.embeddings
+módulo: app.core.agent_prompts
 paquete: app.core
 ---
 
-# embeddings
+# agent_prompts
 
-**Módulo:** `app.core.embeddings`  
+**Módulo:** `app.core.agent_prompts`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-- [[config]]
+- [[scope]]
 
 ## Importado por
 
-- [[api.admin]]
 - [[facebook]]
-- [[instagram]]
 - [[tiktok]]
-- [[whatsapp]]

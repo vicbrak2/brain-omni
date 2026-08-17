@@ -17,5 +17,7 @@ _Sin dependencias locales_
 ## Importado por
 
 - [[api.admin]]
+- [[facebook]]
 - [[instagram]]
+- [[tiktok]]
 - [[whatsapp]]

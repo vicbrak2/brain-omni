@@ -17,5 +17,7 @@ paquete: app.core
 
 ## Importado por
 
+- [[facebook]]
 - [[instagram]]
+- [[tiktok]]
 - [[whatsapp]]

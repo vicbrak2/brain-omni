@@ -13,7 +13,9 @@ paquete: app.workers
 ## Importa
 
 - [[config]]
+- [[facebook]]
 - [[instagram]]
+- [[tiktok]]
 - [[whatsapp]]
 
 ## Importado por

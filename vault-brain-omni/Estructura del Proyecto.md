@@ -17,17 +17,22 @@ proyecto: brain-omni
     - 📄 `webhook.py`
   - 📁 `core`
     - 📄 `__init__.py`
+    - 📄 `agent_prompts.py`
     - 📄 `brain.py`
     - 📄 `claude.py`
     - 📄 `config.py`
     - 📄 `embeddings.py`
+    - 📄 `facebook_sender.py`
     - 📄 `instagram_sender.py`
     - 📄 `providers.py`
+    - 📄 `scope.py`
+    - 📄 `tiktok_sender.py`
     - 📄 `whatsapp_sender.py`
   - 📁 `db`
     - 📁 `repos`
       - 📄 `__init__.py`
       - 📄 `admin.py`
+      - 📄 `agent_configs.py`
       - 📄 `conversations.py`
       - 📄 `knowledge.py`
       - 📄 `messages.py`
@@ -40,8 +45,10 @@ proyecto: brain-omni
     - 📄 `status.html`
   - 📁 `workers`
     - 📄 `__init__.py`
+    - 📄 `facebook.py`
     - 📄 `instagram.py`
     - 📄 `settings.py`
+    - 📄 `tiktok.py`
     - 📄 `whatsapp.py`
   - 📄 `__init__.py`
 - 📁 `migrations`
@@ -49,6 +56,7 @@ proyecto: brain-omni
   - 📄 `002_instagram_accounts.sql`
   - 📄 `003_agent_config_index.sql`
   - 📄 `004_embeddings_384.sql`
+  - 📄 `005_agent_configs.sql`
 - 📁 `tests`
   - 📄 `__init__.py`
   - 📄 `conftest.py`
@@ -98,6 +106,7 @@ proyecto: brain-omni
     - 📄 `test_parsers.md`
     - 📄 `test_signature.md`
     - 📄 `tests.__init__.md`
+    - 📄 `update_vault.md`
     - 📄 `webhook.md`
     - 📄 `whatsapp.md`
     - 📄 `whatsapp_sender.md`

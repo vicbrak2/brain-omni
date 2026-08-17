@@ -1,12 +1,12 @@
 ---
 tags: [módulo, brain-omni]
-módulo: app.core.embeddings
+módulo: app.core.tiktok_sender
 paquete: app.core
 ---
 
-# embeddings
+# tiktok_sender
 
-**Módulo:** `app.core.embeddings`  
+**Módulo:** `app.core.tiktok_sender`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
@@ -16,8 +16,4 @@ paquete: app.core
 
 ## Importado por
 
-- [[api.admin]]
-- [[facebook]]
-- [[instagram]]
 - [[tiktok]]
-- [[whatsapp]]
