@@ -6,7 +6,6 @@ Todos los endpoints usan admin_conn() para saltear RLS.
 from __future__ import annotations
 
 import logging
-import re
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel, Field

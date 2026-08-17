@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+dist/
+build/
+.eggs/
+
+# Tests y desarrollo
+tests/
+requirements-dev.txt
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Vault del auditor (solo documentación)
+vault-brain-omni/
+
+# Entorno local
+.env
+.env.*
+*.env
+
+# Editor / OS
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Migraciones (no se ejecutan dentro del contenedor)
+migrations/
