@@ -30,10 +30,14 @@ jobs:
       - name: Correr auditor (vault-brain-omni)
         run: python tools/auditor.py . --output vault-brain-omni
 
-      - name: Actualizar fecha en vault/00 - Index.md
+      # Actualiza checkboxes de roadmap según estado del código
+      - name: Actualizar checkboxes del roadmap
+        run: python tools/update_vault.py
+
+      - name: Actualizar fecha y versión en vault/00 - Index.md
         run: |
           python - <<'EOF'
-          import re, subprocess
+          import re
           from pathlib import Path
           from datetime import date
 
@@ -52,7 +56,6 @@ jobs:
           text = idx.read_text(encoding="utf-8")
           today = date.today().isoformat()
 
-          # Actualizar o añadir línea de versión/fecha al final
           text = re.sub(r'> \*\*Versión actual:.*', f'> **Versión actual:** v{ver} — RAG con pgvector  ', text)
           text = re.sub(r'> \*\*Última actualización:.*', f'> **Última actualización:** {today}', text)
 
