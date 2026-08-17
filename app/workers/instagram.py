@@ -16,9 +16,11 @@ import logging
 from typing import Any
 
 from app.core.claude import call_claude
+from app.core.embeddings import embed, vec_to_str
 from app.core.instagram_sender import send_instagram_message
 from app.db.connection import admin_conn, tenant_conn
 from app.db.repos import conversations as conv_repo
+from app.db.repos import knowledge as knowledge_repo
 from app.db.repos import messages as msg_repo
 from app.db.repos import tenants as tenant_repo
 
@@ -140,6 +142,34 @@ async def process_instagram_message(ctx: dict, payload: dict) -> None:
         if agent_cfg and agent_cfg.get("system_prompt")
         else None
     )
+
+    # RAG: enriquecer el system prompt con contexto de la base de conocimiento
+    async with admin_conn() as conn:
+        has_kb = await knowledge_repo.tenant_has_embeddings(conn, tenant_id)
+
+    if has_kb:
+        query_emb = await embed(dm["text"])
+        if query_emb is not None:
+            async with admin_conn() as conn:
+                chunks = await knowledge_repo.search_similar(
+                    conn,
+                    tenant_id=tenant_id,
+                    query_embedding_str=vec_to_str(query_emb),
+                    top_k=3,
+                    min_score=0.35,
+                )
+            if chunks:
+                context_block = "\n\n---\n".join(c["chunk_text"] for c in chunks)
+                rag_section = (
+                    "\n\n## Contexto de la base de conocimiento\n"
+                    f"{context_block}"
+                )
+                system_prompt = (system_prompt or "") + rag_section
+                logger.info(
+                    "RAG: %d chunks inyectados para IG conversación %s",
+                    len(chunks),
+                    conversation_id,
+                )
 
     logger.info(
         "IG conversación %s — %d msgs, system_prompt=%s. Llamando a Brain.",

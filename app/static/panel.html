@@ -596,6 +596,116 @@ a { color: var(--accent); text-decoration: none; }
 #toast.success { background: var(--accent-dim); }
 #toast.error   { background: var(--danger); }
 
+/* ─── KNOWLEDGE DOCS ─── */
+.docs-empty {
+  padding: 12px 0;
+  font-size: 13px;
+  color: var(--text-faint);
+  line-height: 1.6;
+}
+.doc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.doc-info { flex: 1; min-width: 0; }
+.doc-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doc-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  letter-spacing: .01em;
+}
+.doc-badge {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.btn-delete {
+  background: transparent;
+  color: var(--text-faint);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: background .12s, color .12s;
+}
+.btn-delete:hover { background: var(--danger-bg); color: var(--danger); }
+.doc-add-form {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  gap: 12px;
+  flex-direction: column;
+  margin-top: 10px;
+}
+.doc-add-form.open { display: flex; }
+.doc-add-form .field { margin-bottom: 0; }
+.doc-content-area {
+  width: 100%;
+  min-height: 140px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  color: var(--text);
+  transition: border-color .15s;
+}
+.doc-content-area:focus { border-color: var(--accent); }
+.btn-add-doc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13px;
+  min-height: var(--tap);
+  transition: border-color .12s, color .12s, background .12s;
+}
+.btn-add-doc:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
 /* ─── MOBILE (≤ 640px) ─── */
 @media (max-width: 640px) {
   /* Stack panels, control visibility via JS */
@@ -815,6 +925,47 @@ a { color: var(--accent); text-decoration: none; }
             </div>
           </div>
 
+          <!-- KNOWLEDGE BASE -->
+          <div class="form-section">
+            <div class="section-label">Base de conocimiento (RAG)</div>
+            <div id="docs-list"></div>
+
+            <!-- Add doc form (hidden by default) -->
+            <div class="doc-add-form" id="doc-add-form">
+              <div class="field">
+                <label>Título del documento</label>
+                <input type="text" id="doc-title" placeholder="FAQ de preguntas frecuentes" />
+              </div>
+              <div class="field">
+                <label>Tipo</label>
+                <select id="doc-type">
+                  <option value="faq">FAQ</option>
+                  <option value="product">Producto / Servicios</option>
+                  <option value="policy">Política</option>
+                  <option value="custom" selected>Personalizado</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Contenido del documento</label>
+                <textarea class="doc-content-area" id="doc-content"
+                  placeholder="Pega aquí el texto a indexar. El sistema lo dividirá en fragmentos y generará embeddings automáticamente. Máx. 50.000 caracteres."></textarea>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-primary" id="upload-doc-btn" onclick="uploadDoc()" style="flex:1;min-width:120px">
+                  Subir y generar embeddings
+                </button>
+                <button class="btn btn-ghost" onclick="toggleDocForm()">Cancelar</button>
+              </div>
+            </div>
+
+            <button class="btn-add-doc" id="add-doc-btn" onclick="toggleDocForm()">
+              <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              Agregar documento
+            </button>
+          </div>
+
         </div><!-- /form-scroll -->
       </div><!-- /config-form -->
     </main>
@@ -1027,6 +1178,7 @@ async function selectTenant(id, name) {
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('config-form').style.display = 'flex';
   await loadConfig(id);
+  await loadDocs(id);
   showMobileConfig();
 }
 
@@ -1136,5 +1288,95 @@ function toast(msg, type = '') {
   el.className = `show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+}
+
+// ── Knowledge Docs ────────────────────────────────────────────────────────────
+async function loadDocs(tenantId) {
+  const list = document.getElementById('docs-list');
+  list.innerHTML = `<div class="docs-empty">Cargando…</div>`;
+  const res = await api(`/api/admin/tenants/${tenantId}/docs`);
+  if (!res.ok) { list.innerHTML = ''; return; }
+  renderDocs(await res.json());
+}
+
+function renderDocs(docs) {
+  const list = document.getElementById('docs-list');
+  if (!docs.length) {
+    list.innerHTML = `<div class="docs-empty">Sin documentos aún. El agente responde solo con el system prompt.<br>Sube un documento para activar el RAG.</div>`;
+    return;
+  }
+  list.innerHTML = docs.map(d => `
+    <div class="doc-item">
+      <div class="doc-info">
+        <div class="doc-title">${escHtml(d.title)}</div>
+        <div class="doc-meta">${d.doc_type} · ${d.chunks} chunk${d.chunks !== 1 ? 's' : ''} · ${new Date(d.created_at).toLocaleDateString('es-CL')}</div>
+      </div>
+      <span class="doc-badge">${d.chunks} ✦</span>
+      <button class="btn-delete" onclick="deleteDoc('${d.id}')" title="Eliminar documento" aria-label="Eliminar">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1.75 3.5h10.5M5.25 3.5V2h3.5v1.5M11 3.5l-.7 8H3.7l-.7-8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 6v3.5M8.5 6v3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function toggleDocForm() {
+  const form = document.getElementById('doc-add-form');
+  const btn  = document.getElementById('add-doc-btn');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) {
+    btn.style.display = 'none';
+    document.getElementById('doc-title').focus();
+  } else {
+    btn.style.display = '';
+  }
+}
+
+async function uploadDoc() {
+  const title   = document.getElementById('doc-title').value.trim();
+  const content = document.getElementById('doc-content').value.trim();
+  const doc_type = document.getElementById('doc-type').value;
+  if (!title)          { toast('Ingresa un título para el documento', 'error'); return; }
+  if (content.length < 10) { toast('El contenido es demasiado corto (mín. 10 caracteres)', 'error'); return; }
+
+  const btn = document.getElementById('upload-doc-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generando embeddings…';
+
+  const res = await api(`/api/admin/tenants/${currentTenantId}/docs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, content, doc_type }),
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Subir y generar embeddings';
+
+  if (res.ok) {
+    const d = await res.json();
+    toast(`"${escHtml(d.title)}" subido — ${d.embedded} embeddings generados ✓`, 'success');
+    document.getElementById('doc-title').value   = '';
+    document.getElementById('doc-content').value = '';
+    toggleDocForm();
+    await loadDocs(currentTenantId);
+  } else {
+    const err = await res.json().catch(() => ({}));
+    toast(err.detail || 'Error al subir el documento', 'error');
+  }
+}
+
+async function deleteDoc(docId) {
+  if (!confirm('¿Eliminar este documento y todos sus embeddings?')) return;
+  const res = await api(`/api/admin/tenants/${currentTenantId}/docs/${docId}`, {
+    method: 'DELETE',
+  });
+  if (res.ok || res.status === 204) {
+    toast('Documento eliminado', 'success');
+    await loadDocs(currentTenantId);
+  } else {
+    toast('Error al eliminar el documento', 'error');
+  }
 }
 </script>

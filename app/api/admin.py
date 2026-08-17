@@ -11,8 +11,10 @@ from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel, Field
 
 from app.core.config import settings
+from app.core.embeddings import chunk_text, embed_chunks, vec_to_str
 from app.db.connection import admin_conn
 from app.db.repos import admin as admin_repo
+from app.db.repos import knowledge as knowledge_repo
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +53,12 @@ class AgentConfigIn(BaseModel):
     max_tokens: int = Field(1024, ge=64, le=4096)
     handoff_enabled: bool = False
     handoff_threshold: int = Field(5, ge=1, le=50)
+
+
+class DocCreate(BaseModel):
+    title: str = Field(..., min_length=2, max_length=200)
+    content: str = Field(..., min_length=10, max_length=50_000)
+    doc_type: str = Field("custom", pattern=r"^(faq|product|policy|custom)$")
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
@@ -100,3 +108,54 @@ async def upsert_config(
             handoff_threshold=body.handoff_threshold,
         )
     return {"status": "saved"}
+
+
+# ── Knowledge docs ────────────────────────────────────────────────────────────
+
+@router.get("/tenants/{tenant_id}/docs")
+async def list_docs(tenant_id: str, _: None = Auth) -> list[dict]:
+    async with admin_conn() as conn:
+        return await knowledge_repo.list_docs(conn, tenant_id)
+
+
+@router.post("/tenants/{tenant_id}/docs", status_code=status.HTTP_201_CREATED)
+async def create_doc(tenant_id: str, body: DocCreate, _: None = Auth) -> dict:
+    """Crea el documento, lo divide en chunks y genera embeddings."""
+    async with admin_conn() as conn:
+        doc = await knowledge_repo.create_doc(
+            conn,
+            tenant_id=tenant_id,
+            title=body.title,
+            content=body.content,
+            doc_type=body.doc_type,
+        )
+
+    # Chunking + embedding (fuera del pool para no bloquear)
+    chunks = chunk_text(body.content)
+    embeddings = await embed_chunks(chunks)
+
+    embedded = 0
+    async with admin_conn() as conn:
+        for idx, (chunk, emb) in enumerate(zip(chunks, embeddings)):
+            if emb is not None:
+                await knowledge_repo.save_chunk(
+                    conn,
+                    tenant_id=tenant_id,
+                    doc_id=str(doc["id"]),
+                    chunk_index=idx,
+                    chunk_text=chunk,
+                    embedding_str=vec_to_str(emb),
+                )
+                embedded += 1
+
+    logger.info(
+        "Doc '%s' creado: %d chunks, %d embeddings generados",
+        body.title, len(chunks), embedded,
+    )
+    return {**doc, "chunks": len(chunks), "embedded": embedded}
+
+
+@router.delete("/tenants/{tenant_id}/docs/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_doc(tenant_id: str, doc_id: str, _: None = Auth) -> None:
+    async with admin_conn() as conn:
+        await knowledge_repo.delete_doc(conn, tenant_id=tenant_id, doc_id=doc_id)
