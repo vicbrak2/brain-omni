@@ -26,6 +26,12 @@
   --radius:      8px;
   --tap:         44px;   /* min touch target */
 
+  /* platforms */
+  --wa:    #25D366; --wa-bg:  rgba(37,211,102,.13);
+  --ig:    #E1306C; --ig-bg:  rgba(225,48,108,.13);
+  --fb:    #1877F2; --fb-bg:  rgba(24,119,242,.13);
+  --tt:    #FF0050; --tt-bg:  rgba(255,0,80,.13);
+
   --font-ui:   system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, 'Consolas', monospace;
 }
@@ -241,6 +247,9 @@ a { color: var(--accent); text-decoration: none; }
 .tenant-item.active {
   background: var(--accent-bg);
   border-color: rgba(30,186,140,.25);
+  border-left-color: var(--accent);
+  border-left-width: 2px;
+  padding-left: 9px;  /* compensate for extra border width */
 }
 .tenant-avatar {
   width: 32px;
@@ -356,6 +365,16 @@ a { color: var(--accent); text-decoration: none; }
   text-transform: uppercase;
   color: var(--text-faint);
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
 /* ─── TEMPLATES ─── */
@@ -600,14 +619,18 @@ a { color: var(--accent); text-decoration: none; }
 .agent-tabs {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   margin-bottom: 12px;
+  padding-bottom: 2px;   /* prevent clipping focus ring */
 }
+.agent-tabs::-webkit-scrollbar { display: none; }
 .agent-tab {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border: 1px solid var(--border);
   border-radius: 20px;
   font-size: 12px;
@@ -617,17 +640,22 @@ a { color: var(--accent); text-decoration: none; }
   cursor: pointer;
   transition: all .12s;
   min-height: var(--tap);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-.agent-tab:hover {
-  background: var(--accent-bg);
-  border-color: rgba(30,186,140,.35);
-  color: var(--accent);
-}
-.agent-tab.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
+.agent-tab:hover { background: var(--surface); color: var(--text); }
+
+/* Platform-colored active states */
+.agent-tab.wa.active { background: var(--wa);  border-color: var(--wa);  color: #fff; }
+.agent-tab.ig.active { background: var(--ig);  border-color: var(--ig);  color: #fff; }
+.agent-tab.fb.active { background: var(--fb);  border-color: var(--fb);  color: #fff; }
+.agent-tab.tt.active { background: var(--tt);  border-color: var(--tt);  color: #fff; }
+
+/* Hover tints per platform */
+.agent-tab.wa:not(.active):hover { border-color: var(--wa); color: var(--wa); background: var(--wa-bg); }
+.agent-tab.ig:not(.active):hover { border-color: var(--ig); color: var(--ig); background: var(--ig-bg); }
+.agent-tab.fb:not(.active):hover { border-color: var(--fb); color: var(--fb); background: var(--fb-bg); }
+.agent-tab.tt:not(.active):hover { border-color: var(--tt); color: var(--tt); background: var(--tt-bg); }
 .scope-tabs {
   display: flex;
   gap: 6px;
@@ -650,42 +678,67 @@ a { color: var(--accent); text-decoration: none; }
 .scope-tab.int.active { background: rgba(245,158,11,.12);  color: #f59e0b; border-color: #f59e0b; }
 .scope-tab:not(.active):hover { background: var(--surface); }
 
-.scope-header-preview {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
+.scope-header-wrap {
+  background: #0D1B12;
+  border: 1px solid #1E3828;
   border-radius: var(--radius);
-  padding: 12px 14px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.7;
-  color: var(--text-muted);
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin-bottom: 12px;
-  max-height: 160px;
-  overflow-y: auto;
+  margin-bottom: 14px;
+  overflow: hidden;
 }
-.scope-header-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 6px;
+.scope-header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 6px 12px;
+  background: #091410;
+  border-bottom: 1px solid #1E3828;
+  gap: 8px;
 }
-.scope-header-label button {
+.scope-header-dots {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.scope-header-dots span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  display: block;
+}
+.scope-header-dots span:nth-child(1) { color: #FF5F57; }
+.scope-header-dots span:nth-child(2) { color: #FEBC2E; }
+.scope-header-dots span:nth-child(3) { color: #28C840; }
+.scope-header-title {
+  font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-faint);
+  color: #4A7060;
+  flex: 1;
+  text-align: center;
+  letter-spacing: .04em;
+}
+.scope-header-toggle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #4A7060;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
+  flex-shrink: 0;
 }
-.scope-header-label button:hover { color: var(--text-muted); }
+.scope-header-toggle:hover { color: #6DA090; }
+.scope-header-preview {
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: #5FBF8C;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 160px;
+  overflow-y: auto;
+  background: transparent;
+}
 
 .agent-no-internal {
   font-size: 13px;
@@ -849,16 +902,22 @@ a { color: var(--accent); text-decoration: none; }
   .btn-revert-text { display: none; }
 
   /* Form */
-  .form-scroll { padding: 16px; }
+  .form-scroll { padding: 14px; }
 
   /* Params: 1 column */
-  .param-row { grid-template-columns: 1fr; gap: 10px; }
+  .param-row { grid-template-columns: 1fr 1fr; gap: 10px; }
 
   /* Handoff: wrap naturally (already flex-wrap: wrap) */
   .handoff-threshold { min-width: 0; width: 100%; }
 
   /* New tenant form grid: 1 column */
   .new-tenant-form .row { grid-template-columns: 1fr; }
+
+  /* Agent tabs: already handle scroll (no-wrap by default) */
+  .agent-tabs { margin-left: -14px; margin-right: -14px; padding-left: 14px; padding-right: 14px; }
+
+  /* Scope header: slightly smaller */
+  .scope-header-preview { font-size: 11px; }
 
   /* Toast: bottom-safe area */
   #toast { bottom: max(24px, env(safe-area-inset-bottom, 24px)); }
@@ -1029,10 +1088,22 @@ a { color: var(--accent); text-decoration: none; }
 
             <!-- Channel tabs -->
             <div class="agent-tabs" id="agent-channel-tabs">
-              <button class="agent-tab active" data-ch="whatsapp"  onclick="selectAgentChannel('whatsapp')">💬 WhatsApp</button>
-              <button class="agent-tab"        data-ch="instagram" onclick="selectAgentChannel('instagram')">📸 Instagram</button>
-              <button class="agent-tab"        data-ch="facebook"  onclick="selectAgentChannel('facebook')">📘 Facebook</button>
-              <button class="agent-tab"        data-ch="tiktok"    onclick="selectAgentChannel('tiktok')">🎵 TikTok</button>
+              <button class="agent-tab wa active" data-ch="whatsapp"  onclick="selectAgentChannel('whatsapp')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp
+              </button>
+              <button class="agent-tab ig" data-ch="instagram" onclick="selectAgentChannel('instagram')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                Instagram
+              </button>
+              <button class="agent-tab fb" data-ch="facebook"  onclick="selectAgentChannel('facebook')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Facebook
+              </button>
+              <button class="agent-tab tt" data-ch="tiktok"    onclick="selectAgentChannel('tiktok')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.17 8.17 0 004.79 1.52V6.76a4.85 4.85 0 01-1.02-.07z"/></svg>
+                TikTok
+              </button>
             </div>
 
             <!-- Scope tabs -->
@@ -1041,11 +1112,14 @@ a { color: var(--accent); text-decoration: none; }
               <button class="scope-tab int"         data-sc="internal" onclick="selectAgentScope('internal')">Interno · Equipo</button>
             </div>
 
-            <!-- Scope header preview (read-only) -->
-            <div id="scope-header-wrap">
-              <div class="scope-header-label">
-                <span>SCOPE_HEADER — prepended por el backend (solo lectura)</span>
-                <button onclick="toggleScopePreview()" id="scope-preview-toggle">▾ ocultar</button>
+            <!-- Scope header preview (read-only, terminal style) -->
+            <div class="scope-header-wrap" id="scope-header-wrap">
+              <div class="scope-header-bar">
+                <div class="scope-header-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <span class="scope-header-title">scope_header — solo lectura</span>
+                <button class="scope-header-toggle" onclick="toggleScopePreview()" id="scope-preview-toggle">▾ ocultar</button>
               </div>
               <div class="scope-header-preview" id="scope-header-preview">…</div>
             </div>
@@ -1482,6 +1556,9 @@ function selectAgentChannel(ch) {
   document.getElementById('agent-no-internal').style.display = NO_INTERNAL.has(ch) ? 'block' : 'none';
   document.getElementById('agent-scope-tabs').style.opacity  = NO_INTERNAL.has(ch) ? '0.4' : '1';
   document.getElementById('agent-scope-tabs').style.pointerEvents = NO_INTERNAL.has(ch) ? 'none' : '';
+  // Scroll active tab into view on mobile
+  const activeTab = document.querySelector('.agent-tab.active');
+  if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   renderScopeHeader();
   loadAgentConfig();
 }
@@ -1506,7 +1583,7 @@ function toggleScopePreview() {
   const preview = document.getElementById('scope-header-preview');
   const toggle  = document.getElementById('scope-preview-toggle');
   preview.style.display = scopePreviewOpen ? '' : 'none';
-  toggle.textContent    = scopePreviewOpen ? '▾ ocultar' : '▸ mostrar';
+  toggle.textContent    = scopePreviewOpen ? '▾ ocultar' : '▸ ver';
 }
 
 function updateAgentCharCount() {
