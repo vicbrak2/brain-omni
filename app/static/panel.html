@@ -1,3 +1,5 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>brain-omni panel</title>
 
 <style>
@@ -21,10 +23,11 @@
   --warn:        #D97706;
 
   --sidebar-w:   224px;
-  --radius:      6px;
+  --radius:      8px;
+  --tap:         44px;   /* min touch target */
 
-  --font-ui:     system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono:   ui-monospace, 'SF Mono', Menlo, 'Consolas', monospace;
+  --font-ui:   system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, 'Consolas', monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -54,13 +57,16 @@
 
 /* ─── RESET ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
 body {
   font-family: var(--font-ui);
   background: var(--bg);
   color: var(--text);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
-  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 button { cursor: pointer; font: inherit; border: none; }
@@ -72,14 +78,15 @@ a { color: var(--accent); text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: 100%;
   padding: 24px;
+  background: var(--bg);
 }
 .login-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 32px;
+  border-radius: 12px;
+  padding: 32px 28px;
   width: 100%;
   max-width: 380px;
 }
@@ -91,7 +98,7 @@ a { color: var(--accent); text-decoration: none; }
   margin-bottom: 4px;
 }
 .login-sub {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   margin-bottom: 24px;
 }
@@ -103,21 +110,23 @@ a { color: var(--accent); text-decoration: none; }
 }
 .field label {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .07em;
+  font-weight: 700;
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
-.field input {
+.field input, .field select {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 9px 12px;
-  font-size: 13px;
+  padding: 10px 12px;
+  font-size: 15px;
+  min-height: var(--tap);
   outline: none;
   transition: border-color .15s;
+  -webkit-appearance: none;
 }
-.field input:focus { border-color: var(--accent); }
+.field input:focus, .field select:focus { border-color: var(--accent); }
 
 /* ─── BUTTONS ─── */
 .btn {
@@ -125,11 +134,13 @@ a { color: var(--accent); text-decoration: none; }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 0 18px;
+  min-height: var(--tap);
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   transition: opacity .15s, background .15s;
+  white-space: nowrap;
 }
 .btn-primary {
   background: var(--accent);
@@ -144,19 +155,31 @@ a { color: var(--accent); text-decoration: none; }
   border: 1px solid var(--border);
 }
 .btn-ghost:hover { background: var(--surface-2); }
-.btn-danger {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border: 1px solid rgba(220,38,38,.2);
+.btn-icon {
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+.btn-icon:hover { background: var(--surface-2); }
 
 /* ─── APP SHELL ─── */
-#app { display: none; height: 100vh; overflow: hidden; }
+#app {
+  display: none;
+  height: 100%;
+  overflow: hidden;
+}
 
+/* ─── DESKTOP: side-by-side ─── */
 .shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
-  height: 100vh;
+  height: 100%;
 }
 
 /* ─── SIDEBAR ─── */
@@ -167,63 +190,61 @@ a { color: var(--accent); text-decoration: none; }
   flex-direction: column;
   overflow: hidden;
 }
-
 .sidebar-head {
-  padding: 16px 16px 12px;
+  padding: 16px 12px 12px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-
 .brand {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 700;
   color: var(--accent);
-  letter-spacing: .04em;
+  letter-spacing: .05em;
   margin-bottom: 10px;
 }
-
 .btn-new {
   display: flex;
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 8px 10px;
   background: var(--accent-bg);
   border: 1px dashed rgba(30,186,140,.35);
   border-radius: var(--radius);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--accent);
   font-weight: 500;
   transition: background .15s;
+  min-height: var(--tap);
 }
 .btn-new:hover { background: rgba(30,186,140,.17); }
 
 .tenant-list {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 8px;
 }
-
 .tenant-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 10px;
+  padding: 10px 10px;
   border-radius: var(--radius);
   cursor: pointer;
   transition: background .12s;
   border: 1px solid transparent;
+  min-height: 52px;
 }
 .tenant-item:hover { background: var(--surface-2); }
 .tenant-item.active {
   background: var(--accent-bg);
   border-color: rgba(30,186,140,.25);
 }
-
 .tenant-avatar {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   background: var(--accent-bg);
   color: var(--accent);
@@ -236,14 +257,10 @@ a { color: var(--accent); text-decoration: none; }
   flex-shrink: 0;
   text-transform: uppercase;
 }
-.tenant-item.active .tenant-avatar {
-  background: var(--accent);
-  color: #fff;
-}
-
+.tenant-item.active .tenant-avatar { background: var(--accent); color: #fff; }
 .tenant-meta { min-width: 0; }
 .tenant-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text);
   white-space: nowrap;
@@ -256,19 +273,21 @@ a { color: var(--accent); text-decoration: none; }
   color: var(--text-faint);
   letter-spacing: .03em;
 }
-
 .sidebar-foot {
-  padding: 12px 16px;
+  padding: 12px 14px;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
 .logout-btn {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-faint);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
 }
 .logout-btn:hover { color: var(--text-muted); }
 
@@ -277,18 +296,22 @@ a { color: var(--accent); text-decoration: none; }
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--bg);
 }
 
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 28px;
+  padding: 0 16px;
+  min-height: 54px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
   flex-shrink: 0;
-  gap: 16px;
+  gap: 10px;
 }
+
+/* Back button: desktop hidden, mobile visible */
+.btn-back { display: none; }
 
 .topbar-title {
   font-size: 15px;
@@ -313,24 +336,19 @@ a { color: var(--accent); text-decoration: none; }
   gap: 10px;
   color: var(--text-faint);
 }
-.empty-icon {
-  font-size: 2rem;
-  opacity: .5;
-}
-.empty-text { font-size: 13px; }
+.empty-icon { font-size: 2rem; opacity: .5; }
+.empty-text { font-size: 14px; }
 
-/* ─── FORM PANEL ─── */
+/* ─── CONFIG FORM ─── */
 .form-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 28px;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px;
 }
 
 /* ─── SECTIONS ─── */
-.form-section {
-  margin-bottom: 28px;
-}
-
+.form-section { margin-bottom: 28px; }
 .section-label {
   font-size: 10px;
   font-weight: 700;
@@ -348,15 +366,18 @@ a { color: var(--accent); text-decoration: none; }
   margin-bottom: 12px;
 }
 .tpl-chip {
-  font-size: 11px;
+  font-size: 12px;
   font-family: var(--font-mono);
-  padding: 4px 10px;
+  padding: 6px 12px;
   border: 1px solid var(--border);
   border-radius: 20px;
   background: var(--surface-2);
   color: var(--text-muted);
   cursor: pointer;
   transition: all .12s;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
 }
 .tpl-chip:hover {
   background: var(--accent-bg);
@@ -365,29 +386,25 @@ a { color: var(--accent); text-decoration: none; }
 }
 
 /* ─── PROMPT TEXTAREA ─── */
-.prompt-wrap {
-  position: relative;
-}
+.prompt-wrap { position: relative; }
 .prompt-area {
   width: 100%;
-  min-height: 200px;
-  max-height: 380px;
+  min-height: 180px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px;
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.7;
   resize: vertical;
   outline: none;
   color: var(--text);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.06);
   transition: border-color .15s, box-shadow .15s;
 }
 .prompt-area:focus {
   border-color: var(--accent);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.06), 0 0 0 3px rgba(30,186,140,.12);
+  box-shadow: 0 0 0 3px rgba(30,186,140,.12);
 }
 .char-count {
   position: absolute;
@@ -397,6 +414,9 @@ a { color: var(--accent); text-decoration: none; }
   font-size: 10px;
   color: var(--text-faint);
   pointer-events: none;
+  background: var(--surface-2);
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 .char-count.warn { color: var(--warn); }
 
@@ -406,14 +426,12 @@ a { color: var(--accent); text-decoration: none; }
   grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
 }
-
 .param-card {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px;
 }
-
 .param-label {
   font-size: 10px;
   font-weight: 700;
@@ -422,58 +440,65 @@ a { color: var(--accent); text-decoration: none; }
   color: var(--text-faint);
   margin-bottom: 8px;
 }
-
 .param-val {
   font-family: var(--font-mono);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--text);
   font-variant-numeric: tabular-nums;
   margin-bottom: 8px;
   display: block;
 }
-
 .param-card input[type="range"] {
   width: 100%;
   accent-color: var(--accent);
-  height: 3px;
+  height: 4px;
+  cursor: pointer;
 }
-
 .param-card input[type="number"] {
   width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 6px 8px;
-  font-size: 13px;
+  padding: 8px;
+  font-size: 1.15rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
   outline: none;
+  min-height: var(--tap);
 }
 .param-card input[type="number"]:focus { border-color: var(--accent); }
+.param-hint {
+  font-size: 10px;
+  color: var(--text-faint);
+  margin-top: 4px;
+  font-family: var(--font-mono);
+}
 
 /* ─── HANDOFF ─── */
 .handoff-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
   padding: 16px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  flex-wrap: wrap;
 }
-
 .toggle-wrap {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
 }
-
 .toggle {
   position: relative;
-  width: 36px;
-  height: 20px;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
 }
-.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
 .toggle-track {
   position: absolute;
   inset: 0;
@@ -486,8 +511,8 @@ a { color: var(--accent); text-decoration: none; }
 .toggle-track::after {
   content: '';
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   top: 3px;
   left: 3px;
   background: #fff;
@@ -495,40 +520,39 @@ a { color: var(--accent); text-decoration: none; }
   transition: transform .2s;
   box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
-.toggle input:checked + .toggle-track::after { transform: translateX(16px); }
-
+.toggle input:checked + .toggle-track::after { transform: translateX(18px); }
 .toggle-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text);
 }
-
 .handoff-threshold {
   display: flex;
   align-items: center;
   gap: 8px;
   flex: 1;
-  justify-content: flex-end;
+  min-width: 200px;
 }
 .handoff-threshold label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   white-space: nowrap;
 }
 .handoff-threshold input {
-  width: 64px;
+  width: 72px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 5px 8px;
+  padding: 6px 8px;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   outline: none;
+  min-height: var(--tap);
 }
 .handoff-threshold input:focus { border-color: var(--accent); }
 
-/* ─── NEW TENANT FORM (inline) ─── */
+/* ─── NEW TENANT FORM ─── */
 .new-tenant-form {
   display: none;
   background: var(--surface);
@@ -541,38 +565,95 @@ a { color: var(--accent); text-decoration: none; }
 }
 .new-tenant-form.open { display: flex; }
 .new-tenant-form .field { margin-bottom: 0; }
-.new-tenant-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.new-tenant-form .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
 
 /* ─── TOAST ─── */
 #toast {
   position: fixed;
   bottom: 24px;
-  right: 24px;
-  padding: 10px 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  padding: 12px 20px;
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: #fff;
   background: var(--text);
-  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
   opacity: 0;
-  transform: translateY(8px);
   transition: opacity .2s, transform .2s;
   pointer-events: none;
-  z-index: 100;
-  max-width: 320px;
+  z-index: 200;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+  white-space: nowrap;
 }
-#toast.show { opacity: 1; transform: translateY(0); }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 #toast.success { background: var(--accent-dim); }
 #toast.error   { background: var(--danger); }
 
-/* ─── RESPONSIVE ─── */
+/* ─── MOBILE (≤ 640px) ─── */
 @media (max-width: 640px) {
-  .shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
-  .param-row { grid-template-columns: 1fr 1fr; }
+  /* Stack panels, control visibility via JS */
+  .shell {
+    display: block;
+    height: 100%;
+    position: relative;
+  }
+
+  /* Sidebar: full-screen panel */
+  .sidebar {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.slide-out {
+    transform: translateX(-100%);
+  }
+  .sidebar-head { padding: 16px 16px 14px; }
+  .brand { font-size: 14px; margin-bottom: 12px; }
+  .btn-new { font-size: 14px; min-height: var(--tap); }
+
+  /* Main: full-screen panel */
+  .main {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    transform: translateX(100%);
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .main.slide-in {
+    transform: translateX(0);
+  }
+
+  /* Show back button on mobile */
+  .btn-back { display: flex; }
+
+  /* Topbar: tighter */
+  .topbar { padding: 0 10px; gap: 6px; }
+
+  /* Revert button: icon-only on mobile */
+  .btn-revert-text { display: none; }
+
+  /* Form */
   .form-scroll { padding: 16px; }
-  .topbar { padding: 12px 16px; }
+
+  /* Params: 1 column */
+  .param-row { grid-template-columns: 1fr; gap: 10px; }
+
+  /* Handoff: wrap naturally (already flex-wrap: wrap) */
+  .handoff-threshold { min-width: 0; width: 100%; }
+
+  /* New tenant form grid: 1 column */
+  .new-tenant-form .row { grid-template-columns: 1fr; }
+
+  /* Toast: bottom-safe area */
+  #toast { bottom: max(24px, env(safe-area-inset-bottom, 24px)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -580,7 +661,7 @@ a { color: var(--accent); text-decoration: none; }
 }
 </style>
 
-<!-- LOGIN -->
+<!-- ─── LOGIN ─── -->
 <div id="login-gate">
   <div class="login-card">
     <div class="login-title">brain-omni · panel</div>
@@ -589,25 +670,27 @@ a { color: var(--accent); text-decoration: none; }
       <label for="token-input">Token</label>
       <input type="password" id="token-input" placeholder="••••••••••••••••" autocomplete="current-password" />
     </div>
-    <div id="login-error" style="font-size:12px;color:var(--danger);margin-bottom:10px;display:none"></div>
+    <div id="login-error" style="font-size:13px;color:var(--danger);margin-bottom:10px;display:none"></div>
     <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ─── APP ─── -->
 <div id="app">
   <div class="shell">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <!-- SIDEBAR (tenant list) -->
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-head">
         <div class="brand">brain-omni</div>
         <button class="btn-new" onclick="toggleNewForm()">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
           </svg>
           Nuevo cliente
         </button>
+
+        <!-- New tenant inline form -->
         <div class="new-tenant-form" id="new-form">
           <div class="field">
             <label>Nombre</label>
@@ -620,7 +703,7 @@ a { color: var(--accent); text-decoration: none; }
             </div>
             <div class="field">
               <label>Plan</label>
-              <select id="nf-plan" style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 8px;outline:none">
+              <select id="nf-plan">
                 <option value="free">Free</option>
                 <option value="starter" selected>Starter</option>
                 <option value="pro">Pro</option>
@@ -633,28 +716,43 @@ a { color: var(--accent); text-decoration: none; }
           </div>
         </div>
       </div>
+
       <div class="tenant-list" id="tenant-list">
-        <div style="padding:20px;text-align:center;color:var(--text-faint);font-size:12px">Cargando…</div>
+        <div style="padding:24px;text-align:center;color:var(--text-faint);font-size:13px">Cargando…</div>
       </div>
+
       <div class="sidebar-foot">
         <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- MAIN (config editor) -->
     <main class="main" id="main-panel">
+      <!-- Empty state (no tenant selected) -->
       <div class="empty" id="empty-state">
         <div class="empty-icon">←</div>
         <div class="empty-text">Selecciona un cliente para configurarlo</div>
       </div>
 
-      <!-- CONFIG FORM (hidden until tenant selected) -->
+      <!-- Config form -->
       <div id="config-form" style="display:none;flex-direction:column;height:100%">
         <div class="topbar">
+          <!-- Back button (mobile only) -->
+          <button class="btn-icon btn-back" onclick="backToList()" aria-label="Volver">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <div class="topbar-title" id="form-title">—</div>
           <div class="topbar-actions">
-            <button class="btn btn-ghost" onclick="loadConfig(currentTenantId)">Revertir</button>
-            <button class="btn btn-primary" id="save-btn" onclick="saveConfig()">Guardar</button>
+            <button class="btn btn-ghost" onclick="loadConfig(currentTenantId)" title="Descartar cambios">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M1.5 7A5.5 5.5 0 1 0 7 1.5c-1.8 0-3.4.86-4.4 2.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <path d="M1.5 1.5v3.5H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="btn-revert-text">Revertir</span>
+            </button>
+            <button class="btn btn-primary" id="save-btn" onclick="saveConfig()" style="width:auto">Guardar</button>
           </div>
         </div>
 
@@ -665,7 +763,9 @@ a { color: var(--accent); text-decoration: none; }
             <div class="section-label">Instrucciones del asistente</div>
             <div class="templates" id="templates"></div>
             <div class="prompt-wrap">
-              <textarea class="prompt-area" id="system-prompt" placeholder="Describe aquí cómo debe comportarse el asistente de este cliente…" oninput="updateCharCount()"></textarea>
+              <textarea class="prompt-area" id="system-prompt"
+                placeholder="Describe aquí cómo debe comportarse el asistente de este cliente…"
+                oninput="updateCharCount()"></textarea>
               <span class="char-count" id="char-count">0 / 8000</span>
             </div>
           </div>
@@ -679,20 +779,19 @@ a { color: var(--accent); text-decoration: none; }
                 <span class="param-val" id="temp-val">0.70</span>
                 <input type="range" min="0" max="1" step="0.05" id="temperature"
                   oninput="document.getElementById('temp-val').textContent=parseFloat(this.value).toFixed(2)" />
-                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-faint);margin-top:4px;font-family:var(--font-mono)">
+                <div style="display:flex;justify-content:space-between" class="param-hint">
                   <span>preciso</span><span>creativo</span>
                 </div>
               </div>
               <div class="param-card">
                 <div class="param-label">Máx. tokens</div>
-                <input type="number" id="max-tokens" min="64" max="4096" step="64" value="1024"
-                  style="font-size:1.1rem;font-weight:600;font-family:var(--font-mono);font-variant-numeric:tabular-nums" />
-                <div style="font-size:10px;color:var(--text-faint);margin-top:6px;font-family:var(--font-mono)">64 – 4096</div>
+                <input type="number" id="max-tokens" min="64" max="4096" step="64" value="1024" />
+                <div class="param-hint" style="margin-top:6px">64 – 4096 tokens</div>
               </div>
               <div class="param-card">
                 <div class="param-label">Historial</div>
                 <span class="param-val">20</span>
-                <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Últimos 20 mensajes usados como contexto</div>
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.4">Últimos 20 mensajes como contexto</div>
               </div>
             </div>
           </div>
@@ -709,9 +808,9 @@ a { color: var(--accent); text-decoration: none; }
                 <span class="toggle-label">Activar derivación</span>
               </div>
               <div class="handoff-threshold" id="threshold-wrap">
-                <label for="handoff-threshold">Escalar después de</label>
+                <label for="handoff-threshold">Escalar tras</label>
                 <input type="number" id="handoff-threshold" min="1" max="50" value="5" />
-                <span style="font-size:12px;color:var(--text-muted)">mensajes sin resolver</span>
+                <span style="font-size:13px;color:var(--text-muted)">mensajes sin resolver</span>
               </div>
             </div>
           </div>
@@ -720,13 +819,13 @@ a { color: var(--accent); text-decoration: none; }
       </div><!-- /config-form -->
     </main>
 
-  </div>
-</div>
+  </div><!-- /shell -->
+</div><!-- /app -->
 
 <div id="toast"></div>
 
 <script>
-// ── Templates ────────────────────────────────────────────────────────────────
+// ── Templates ─────────────────────────────────────────────────────────────────
 const TEMPLATES = [
   {
     label: 'Clínica Dental',
@@ -795,6 +894,7 @@ No entregues precios sin consultar al agente asignado.`
 let token = '';
 let currentTenantId = null;
 let currentTenantName = '';
+const isMobile = () => window.innerWidth <= 640;
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 (function init() {
@@ -828,6 +928,27 @@ let currentTenantName = '';
   });
 })();
 
+// ── Mobile navigation ─────────────────────────────────────────────────────────
+function showMobileList() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main-panel');
+  sidebar.classList.remove('slide-out');
+  main.classList.remove('slide-in');
+}
+
+function showMobileConfig() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main-panel');
+  if (isMobile()) {
+    sidebar.classList.add('slide-out');
+    main.classList.add('slide-in');
+  }
+}
+
+function backToList() {
+  showMobileList();
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 async function doLogin() {
   const input = document.getElementById('token-input').value.trim();
@@ -846,7 +967,9 @@ async function doLogin() {
     showApp(await res.json());
   } else {
     const err = document.getElementById('login-error');
-    err.textContent = res?.status === 401 ? 'Token incorrecto.' : 'Error de conexión. ¿El servidor está activo?';
+    err.textContent = res?.status === 401
+      ? 'Token incorrecto.'
+      : 'Error de conexión. ¿El servidor está activo?';
     err.style.display = 'block';
     btn.disabled = false;
     btn.textContent = 'Entrar';
@@ -874,7 +997,10 @@ async function loadTenants() {
 function renderTenants(tenants) {
   const list = document.getElementById('tenant-list');
   if (!tenants.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-faint);font-size:12px">Sin clientes aún.<br>Crea el primero ↑</div>';
+    list.innerHTML = `
+      <div style="padding:32px 16px;text-align:center;color:var(--text-faint);font-size:13px;line-height:1.7">
+        Sin clientes aún.<br>Crea el primero ↑
+      </div>`;
     return;
   }
   list.innerHTML = tenants.map(t => `
@@ -889,15 +1015,19 @@ function renderTenants(tenants) {
   `).join('');
 }
 
-async function selectTenant(id, name, plan) {
+async function selectTenant(id, name) {
   currentTenantId = id;
   currentTenantName = name;
   document.querySelectorAll('.tenant-item').forEach(el => el.classList.remove('active'));
-  event?.currentTarget?.classList.add('active');
+  // Mark active without relying on event.currentTarget
+  document.querySelectorAll('.tenant-item').forEach(el => {
+    if (el.querySelector('.tenant-name')?.textContent === name) el.classList.add('active');
+  });
   document.getElementById('form-title').textContent = name;
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('config-form').style.display = 'flex';
   await loadConfig(id);
+  showMobileConfig();
 }
 
 async function loadConfig(id) {
@@ -935,8 +1065,7 @@ async function saveConfig() {
 
   btn.disabled = false;
   btn.textContent = 'Guardar';
-
-  if (res.ok) toast('Configuración guardada', 'success');
+  if (res.ok) toast('Configuración guardada ✓', 'success');
   else toast('Error al guardar', 'error');
 }
 
@@ -966,7 +1095,7 @@ async function createTenant() {
     document.getElementById('nf-slug').value = '';
     toggleNewForm();
     await loadTenants();
-    await selectTenant(t.id, t.name, t.plan);
+    await selectTenant(t.id, t.name);
   } else {
     const err = await res.json().catch(() => ({}));
     toast(err.detail || 'Error al crear cliente', 'error');
@@ -989,7 +1118,8 @@ function toggleHandoffUI() {
 }
 
 function escHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 async function api(url, opts = {}) {
