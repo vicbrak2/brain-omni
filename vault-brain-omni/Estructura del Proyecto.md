@@ -64,6 +64,7 @@ proyecto: brain-omni
   - 📄 `test_signature.py`
 - 📁 `tools`
   - 📄 `auditor.py`
+  - 📄 `setup_fb_tiktok.sh`
   - 📄 `update_vault.py`
 - 📁 `vault`
   - 📁 `canales`
@@ -80,6 +81,8 @@ proyecto: brain-omni
   - 📄 `Arquitectura.md`
 - 📁 `vault-brain-omni`
   - 📁 `módulos`
+    - 📄 `agent_configs.md`
+    - 📄 `agent_prompts.md`
     - 📄 `api.__init__.md`
     - 📄 `api.admin.md`
     - 📄 `app.__init__.md`
@@ -93,6 +96,8 @@ proyecto: brain-omni
     - 📄 `core.__init__.md`
     - 📄 `db.__init__.md`
     - 📄 `embeddings.md`
+    - 📄 `facebook.md`
+    - 📄 `facebook_sender.md`
     - 📄 `instagram.md`
     - 📄 `instagram_sender.md`
     - 📄 `knowledge.md`
@@ -101,11 +106,14 @@ proyecto: brain-omni
     - 📄 `providers.md`
     - 📄 `repos.__init__.md`
     - 📄 `repos.admin.md`
+    - 📄 `scope.md`
     - 📄 `settings.md`
     - 📄 `tenants.md`
     - 📄 `test_parsers.md`
     - 📄 `test_signature.md`
     - 📄 `tests.__init__.md`
+    - 📄 `tiktok.md`
+    - 📄 `tiktok_sender.md`
     - 📄 `update_vault.md`
     - 📄 `webhook.md`
     - 📄 `whatsapp.md`
