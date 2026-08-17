@@ -12,10 +12,13 @@ paquete: app.api
 
 ## Importa
 
+- [[agent_prompts]]
 - [[config]]
 - [[embeddings]]
+- [[scope]]
 - [[connection]]
 - [[repos.admin]]
+- [[agent_configs]]
 - [[knowledge]]
 
 ## Importado por

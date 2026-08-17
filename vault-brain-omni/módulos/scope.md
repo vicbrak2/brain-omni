@@ -16,6 +16,7 @@ _Sin dependencias locales_
 
 ## Importado por
 
+- [[api.admin]]
 - [[agent_prompts]]
 - [[facebook]]
 - [[tiktok]]

@@ -16,5 +16,6 @@ paquete: app.core
 
 ## Importado por
 
+- [[api.admin]]
 - [[facebook]]
 - [[tiktok]]

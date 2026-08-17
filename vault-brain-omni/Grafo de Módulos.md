@@ -14,7 +14,7 @@ Abre la **Vista de Grafo** en Obsidian para ver la red.
 
 - [[app.__init__]] `app` — 0 dep(s)
 - [[api.__init__]] `app.api` — 0 dep(s)
-- [[api.admin]] `app.api` — 5 dep(s)
+- [[api.admin]] `app.api` — 8 dep(s)
 - [[webhook]] `app.api` — 1 dep(s)
 - [[core.__init__]] `app.core` — 0 dep(s)
 - [[agent_prompts]] `app.core` — 1 dep(s)
