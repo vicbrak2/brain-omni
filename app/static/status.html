@@ -466,14 +466,14 @@ footer {
       <h1 class="project-title">brain<span class="accent">-omni</span></h1>
       <div class="live-chip">
         <span class="live-dot"></span>
-        live · v0.3.0
+        live · v0.4.0
       </div>
     </div>
-    <p class="tagline">Backend multi-canal para mensajería inteligente — WhatsApp + Instagram DM, multi-LLM, multi-tenant.</p>
+    <p class="tagline">Backend multi-canal para mensajería inteligente — WhatsApp + Instagram DM, multi-LLM, multi-tenant, RAG por tenant.</p>
 
     <div class="progress-row">
       <span>Progreso infraestructura core</span>
-      <span>85%</span>
+      <span>92%</span>
     </div>
     <div class="progress-track">
       <div class="progress-fill" id="pbar"></div>
@@ -494,10 +494,27 @@ footer {
 
       <div class="log-entry">
         <div class="log-head">
-          <span class="ver">0.3</span>
-          <span class="rel-name">Multi-LLM · Admin Panel · Knowledge Base</span>
+          <span class="ver">0.4</span>
+          <span class="rel-name">RAG · Knowledge Base por tenant</span>
         </div>
         <div class="rel-date">17 ago 2026 · en producción</div>
+        <div class="items">
+          <div class="item"><strong>RAG per-tenant</strong> — documentos indexados con embeddings vectoriales; el agente recupera los chunks más relevantes antes de responder.</div>
+          <div class="item">Modelo de embeddings: <span class="code">paraphrase-multilingual-MiniLM-L12-v2</span> (HuggingFace, gratis, 384 dims, español nativo).</div>
+          <div class="item">Chunking con solapamiento (200 palabras, overlap 20) y búsqueda por similitud coseno con threshold configurable.</div>
+          <div class="item">API Admin: <span class="code">GET/POST/DELETE /api/admin/tenants/{id}/docs</span> — gestión de documentos con embedding automático.</div>
+          <div class="item">Panel <span class="code">/panel</span> — sección "Base de conocimiento" con lista de docs, tipos (FAQ/producto/política), badges de chunks y eliminar.</div>
+          <div class="item">Workers WhatsApp e Instagram actualizados: embed query → cosine search → inject context block en system prompt.</div>
+          <div class="item">Migración <span class="code">004</span>: tabla <span class="code">embeddings</span> con <span class="code">VECTOR(384)</span> + índice por tenant.</div>
+        </div>
+      </div>
+
+      <div class="log-entry">
+        <div class="log-head">
+          <span class="ver">0.3</span>
+          <span class="rel-name">Multi-LLM · Admin Panel · Config por tenant</span>
+        </div>
+        <div class="rel-date">17 ago 2026</div>
         <div class="items">
           <div class="item"><strong>Panel de configuración</strong> en <span class="code">/panel</span> — UI interactiva con login Bearer token, lista de tenants y editor de config.</div>
           <div class="item"><strong>Admin API</strong> en <span class="code">/api/admin</span> — CRUD de tenants y <span class="code">agent_config</span> (system prompt, temperatura, max_tokens, handoff).</div>
@@ -574,8 +591,8 @@ footer {
       <div class="pitem minor">
         <span class="pbadge">Next</span>
         <div class="ptext">
-          <p>RAG — base de conocimiento con documentos por tenant</p>
-          <small>Tabla knowledge_docs ya existe en schema · falta embeddings + retrieval</small>
+          <p>Panel: vista de conversaciones por tenant en tiempo real</p>
+          <small>Historial de chats, métricas de uso, handoff management</small>
         </div>
       </div>
 
@@ -600,7 +617,7 @@ footer {
         <div class="anum-lbl">Bajo</div>
       </div>
     </div>
-    <div class="audit-note">24 módulos · 18 tests · 27 notas · vault-brain-omni/ en Obsidian</div>
+    <div class="audit-note">27 módulos · 18 tests · 27 notas · vault-brain-omni/ en Obsidian</div>
   </section>
 
   <!-- STACK -->
@@ -619,11 +636,13 @@ footer {
       <div class="sitem"><span class="sname">Instagram Graph API</span><span class="sval na">⚠ pendiente</span></div>
       <div class="sitem"><span class="sname">Admin Panel /panel</span><span class="sval">✓ live</span></div>
       <div class="sitem"><span class="sname">ADMIN_API_TOKEN</span><span class="sval">✓ configurado</span></div>
+      <div class="sitem"><span class="sname">RAG · pgvector</span><span class="sval">✓ live</span></div>
+      <div class="sitem"><span class="sname">HF Embeddings</span><span class="sval">✓ key set</span></div>
     </div>
   </section>
 
   <footer>
-    <div class="foot-txt">brain-omni · actualizado 17 ago 2026 · github.com/vicbrak2/brain-omni</div>
+    <div class="foot-txt">brain-omni · actualizado 17 ago 2026 · v0.4.0 · github.com/vicbrak2/brain-omni</div>
   </footer>
 
 </div>
@@ -632,7 +651,7 @@ footer {
   // Animate progress bar on load
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      document.getElementById('pbar').style.width = '85%';
+      document.getElementById('pbar').style.width = '92%';
     });
   });
 </script>

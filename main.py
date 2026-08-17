@@ -12,7 +12,7 @@ from app.db.connection import close_pool, get_pool
 
 logger = logging.getLogger(__name__)
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 
 _STATUS_PAGE = Path(__file__).parent / "app" / "static" / "status.html"
 _PANEL_PAGE  = Path(__file__).parent / "app" / "static" / "panel.html"
