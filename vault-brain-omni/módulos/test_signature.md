@@ -1,9 +1,9 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.__init__
+módulo: tests.test_signature
 ---
 
-# __init__
+# test_signature
 
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo

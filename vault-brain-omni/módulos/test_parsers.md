@@ -1,9 +1,9 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.__init__
+módulo: tests.test_parsers
 ---
 
-# __init__
+# test_parsers
 
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo

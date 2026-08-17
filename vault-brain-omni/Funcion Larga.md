@@ -12,6 +12,6 @@ severidad: baja
 
 ## Detalle
 
-- 🟢 `app/workers/whatsapp.py:41` — `process_whatsapp_message` tiene 98 líneas (umbral 50)
-- 🟢 `app/workers/instagram.py:68` — `process_instagram_message` tiene 95 líneas (umbral 50)
+- 🟢 `app/workers/whatsapp.py:43` — `process_whatsapp_message` tiene 138 líneas (umbral 50)
+- 🟢 `app/workers/instagram.py:70` — `process_instagram_message` tiene 133 líneas (umbral 50)
 - 🟢 `app/core/brain.py:114` — `_call_providers_chain` tiene 55 líneas (umbral 50)

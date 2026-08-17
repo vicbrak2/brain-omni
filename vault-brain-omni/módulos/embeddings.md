@@ -1,9 +1,9 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.__init__
+módulo: app.core.embeddings
 ---
 
-# __init__
+# embeddings
 
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo

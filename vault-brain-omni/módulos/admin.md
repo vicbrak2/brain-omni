@@ -1,9 +1,9 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.__init__
+módulo: app.db.repos.admin
 ---
 
-# __init__
+# admin
 
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo

@@ -1,9 +1,9 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.__init__
+módulo: tests.conftest
 ---
 
-# __init__
+# conftest
 
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
