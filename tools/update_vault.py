@@ -114,9 +114,10 @@ FASE2_CHECKS: list[tuple[str, bool]] = [
         has_file("app/workers/instagram.py") and
         file_contains("app/api/webhook.py", r"/webhook/instagram")),
 
-    # Facebook Messenger: worker existe
+    # Facebook Messenger: worker + sender deployados
     ("Facebook Messenger",
-        has_file("app/workers/facebook.py", "app/workers/messenger.py")),
+        has_file("app/workers/facebook.py") and
+        has_file("app/core/facebook_sender.py")),
 
     # Vista de conversaciones: endpoint GET /tenants/{id}/conversations en admin
     ("Vista de conversaciones",
@@ -143,9 +144,10 @@ FASE2_CHECKS: list[tuple[str, bool]] = [
         has_file("app/workers/chat_web.py", "app/workers/web.py",
                  "app/core/chat_web.py")),
 
-    # TikTok: worker
+    # TikTok: worker + sender deployados
     ("TikTok",
-        has_file("app/workers/tiktok.py")),
+        has_file("app/workers/tiktok.py") and
+        has_file("app/core/tiktok_sender.py")),
 ]
 
 

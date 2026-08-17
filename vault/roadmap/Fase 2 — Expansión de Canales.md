@@ -13,13 +13,13 @@ Extender la cobertura a todos los canales planeados y añadir visibilidad operat
 ## Alcance
 
 - [ ] Activar [[Instagram]] (configurar webhook en Meta Business Portal)
-- [ ] Implementar [[Facebook Messenger]] (gateway + worker)
+- [x] Implementar [[Facebook Messenger]] (gateway + worker)
 - [ ] Vista de conversaciones en panel (historial por tenant)
 - [ ] Métricas por tenant (mensajes/día, tokens, hits del RAG)
 - [ ] Re-embedding automático al editar documentos de la knowledge base
 - [ ] Throttling / rate-limit por tenant
 - [ ] [[Chat Web]] — widget embebible para sitios externos
-- [ ] [[TikTok]] — DMs (requiere acceso a TikTok for Business)
+- [x] [[TikTok]] — comentarios (requiere TikTok for Business API)
 
 ## Dependencias
 

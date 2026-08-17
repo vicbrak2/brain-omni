@@ -16,6 +16,24 @@ class Settings(BaseSettings):
     instagram_app_secret: str = ""
     instagram_verify_token: str = "dev_ig_verify_token"
 
+    # Facebook Messenger API (Graph API — Page Access Token)
+    # FACEBOOK_ACCESS_TOKEN: Page Access Token con permisos pages_messaging
+    # FACEBOOK_APP_SECRET: para validar firma HMAC del webhook (X-Hub-Signature-256)
+    # FACEBOOK_VERIFY_TOKEN: token de verificación del webhook en Meta Business
+    # FACEBOOK_PAGE_ID: ID de la Facebook Page del negocio (opcional, puede venir del DB)
+    facebook_access_token: str = ""
+    facebook_app_secret: str = ""
+    facebook_verify_token: str = "dev_fb_verify_token"
+    facebook_page_id: str = ""
+
+    # TikTok for Business API
+    # TIKTOK_ACCESS_TOKEN: token con permisos de Comment Reply API
+    # TIKTOK_APP_SECRET: para validar firma del webhook (X-TikTok-Signature)
+    # TIKTOK_CLIENT_KEY: clave de la app en TikTok for Developers
+    tiktok_access_token: str = ""
+    tiktok_app_secret: str = ""
+    tiktok_client_key: str = ""
+
     # LLM Providers (Brain chain: openrouter → cerebras → hf → groq)
     openrouter_api_key: str = ""
     cerebras_api_key: str = ""
