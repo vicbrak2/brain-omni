@@ -10,7 +10,7 @@ proyecto: brain-omni
 
 Abre la **Vista de Grafo** en Obsidian para ver la red.
 
-## Módulos (30)
+## Módulos (31)
 
 - [[app.__init__]] `app` — 0 dep(s)
 - [[api.__init__]] `app.api` — 0 dep(s)
@@ -42,3 +42,4 @@ Abre la **Vista de Grafo** en Obsidian para ver la red.
 - [[test_parsers]] `tests` — 2 dep(s)
 - [[test_signature]] `tests` — 1 dep(s)
 - [[auditor]] `tools` — 0 dep(s)
+- [[update_vault]] `tools` — 0 dep(s)

@@ -56,6 +56,7 @@ proyecto: brain-omni
   - 📄 `test_signature.py`
 - 📁 `tools`
   - 📄 `auditor.py`
+  - 📄 `update_vault.py`
 - 📁 `vault`
   - 📁 `canales`
     - 📄 `Chat Web.md`
@@ -74,6 +75,7 @@ proyecto: brain-omni
     - 📄 `api.__init__.md`
     - 📄 `api.admin.md`
     - 📄 `app.__init__.md`
+    - 📄 `auditor.md`
     - 📄 `brain.md`
     - 📄 `claude.md`
     - 📄 `config.md`
