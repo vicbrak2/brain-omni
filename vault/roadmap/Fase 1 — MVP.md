@@ -12,21 +12,30 @@ Tener un agente funcional que atienda en al menos **un canal** y pueda responder
 
 ## Alcance
 
-- [ ] Definir stack tecnológico (lenguaje, framework, modelo IA)
-- [ ] Configurar el canal prioritario (recomendado: [[Chat Web]] primero)
-- [ ] Implementar Gateway básico para ese canal
-- [ ] Conectar con modelo de lenguaje (Claude API)
-- [ ] Base de datos de conversaciones (SQLite o Supabase)
-- [ ] Panel mínimo de administración
-- [ ] Pruebas con un negocio piloto
+- [x] Definir stack tecnológico (Python / FastAPI / ARQ / Claude API / PostgreSQL)
+- [x] Configurar el canal prioritario → [[WhatsApp]] (mayor alcance en pymes)
+- [x] Implementar Gateway básico (webhook firmado, worker async ARQ)
+- [x] Conectar con modelo de lenguaje (Claude API — multi-provider)
+- [x] Base de datos de conversaciones (PostgreSQL + asyncpg, multi-tenant RLS)
+- [x] Panel mínimo de administración (panel.html — tenants, prompts, docs)
+- [ ] Pruebas con un negocio piloto real
 
-## Canal sugerido para empezar
+## Estado actual — v0.4.0 (2026-08-17)
 
-[[Chat Web]] — no requiere aprobaciones de plataformas externas, es inmediato de probar.
+| Componente | Estado |
+|---|---|
+| WhatsApp Gateway + Worker | ✅ Deployado |
+| Instagram Gateway + Worker | ✅ Deployado (webhook pendiente Meta) |
+| Multi-tenant con RLS | ✅ |
+| RAG con pgvector (384 dims) | ✅ v0.4.0 |
+| Knowledge Base UI en panel | ✅ v0.4.0 |
+| Negocio piloto activo | ⏳ Pendiente |
 
 ## Siguiente fase
 
-Una vez validado el MVP con Chat Web, integrar [[WhatsApp]] (mayor alcance en pymes).
+[[Fase 2 — Expansión de Canales]]  
+Integrar [[Facebook Messenger]], [[TikTok]], [[Chat Web]].  
+Vista de conversaciones en panel · Métricas por tenant.
 
 ## Ver también
 

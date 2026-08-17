@@ -2,17 +2,17 @@
 
 #index #proyecto
 
-Sistema de agentes IA omnicanal para pymes. Conecta WhatsApp, Instagram, Facebook, TikTok y Chat Web en un único backend inteligente.
+Sistema de agentes IA omnicanal para pymes. Conecta WhatsApp, Instagram, Facebook, TikTok y Chat Web en un único backend inteligente con RAG sobre knowledge base por tenant.
 
 ---
 
 ## Canales soportados
 
-- [[WhatsApp]]
-- [[Instagram]]
-- [[Facebook Messenger]]
-- [[TikTok]]
-- [[Chat Web]]
+- [[WhatsApp]] ✅ activo
+- [[Instagram]] ✅ deployado (webhook pendiente Meta)
+- [[Facebook Messenger]] ⏳ Fase 2
+- [[TikTok]] ⏳ Fase 2
+- [[Chat Web]] ⏳ Fase 2
 
 ## Sistema
 
@@ -21,8 +21,10 @@ Sistema de agentes IA omnicanal para pymes. Conecta WhatsApp, Instagram, Faceboo
 
 ## Roadmap
 
-- [[Fase 1 — MVP]]
+- [[Fase 1 — MVP]] — ✅ completado (6/7 items)
+- [[Fase 2 — Expansión de Canales]] — en progreso
 
 ---
 
-> **Última actualización:** 2026-08-15
+> **Versión actual:** v0.4.0 — RAG con pgvector  
+> **Última actualización:** 2026-08-17
