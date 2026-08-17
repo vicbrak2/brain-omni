@@ -466,14 +466,14 @@ footer {
       <h1 class="project-title">brain<span class="accent">-omni</span></h1>
       <div class="live-chip">
         <span class="live-dot"></span>
-        live · v0.4.0
+        live · v0.5.0
       </div>
     </div>
-    <p class="tagline">Backend multi-canal para mensajería inteligente — WhatsApp + Instagram DM, multi-LLM, multi-tenant, RAG por tenant.</p>
+    <p class="tagline">Backend omnicanal para mensajería inteligente — WhatsApp, Instagram, Facebook Messenger y TikTok. Multi-LLM, multi-tenant, RAG por tenant, ecosistema de 7 agentes con scope enforcement.</p>
 
     <div class="progress-row">
       <span>Progreso infraestructura core</span>
-      <span>92%</span>
+      <span>97%</span>
     </div>
     <div class="progress-track">
       <div class="progress-fill" id="pbar"></div>
@@ -482,7 +482,8 @@ footer {
     <div class="channels">
       <div class="ch on">💬 WhatsApp</div>
       <div class="ch on">📸 Instagram DM</div>
-      <div class="ch">＋ más canales</div>
+      <div class="ch on">📘 Facebook Messenger</div>
+      <div class="ch on">🎵 TikTok</div>
     </div>
   </header>
 
@@ -491,6 +492,23 @@ footer {
     <div class="eyebrow">Changelog</div>
 
     <div class="log">
+
+      <div class="log-entry">
+        <div class="log-head">
+          <span class="ver">0.5</span>
+          <span class="rel-name">Ecosistema de Agentes con Scope Enforcement</span>
+        </div>
+        <div class="rel-date">17 ago 2026 · en producción</div>
+        <div class="items">
+          <div class="item"><strong>4 canales</strong> — Facebook Messenger y TikTok sumados a WhatsApp e Instagram. Workers ARQ completos con flujo idéntico: webhook → tenant → scope prompt → RAG → Brain → API → DB.</div>
+          <div class="item"><strong>7 agentes con scope</strong> — WA-Ext, IG-Ext, FB-Ext, TT-Ext (interacción pública) + IG-Int, FB-Int, TT-Int (análisis operativo para el equipo).</div>
+          <div class="item"><span class="code">app/core/scope.py</span> — <span class="code">Channel</span> + <span class="code">Scope</span> enums, matriz de acciones, <span class="code">ScopeViolationError</span> para enforcement en runtime.</div>
+          <div class="item"><span class="code">app/core/agent_prompts.py</span> — 7 <span class="code">SCOPE_HEADER</span> prepended antes del custom prompt del tenant. El LLM conoce explícitamente qué puede y qué no puede hacer.</div>
+          <div class="item">Migración <span class="code">005</span>: tabla <span class="code">agent_configs</span> con <span class="code">UNIQUE(tenant_id, channel, scope)</span>, RLS, trigger <span class="code">updated_at</span>.</div>
+          <div class="item">Admin API extendida: <span class="code">GET/PUT /api/admin/tenants/{id}/agents/{channel}/{scope}</span> — gestión de prompts por agente desde el panel.</div>
+          <div class="item">Panel actualizado con sección <strong>Agentes</strong> — selector de canal + scope, preview del SCOPE_HEADER, prompt personalizable por agente.</div>
+        </div>
+      </div>
 
       <div class="log-entry">
         <div class="log-head">
@@ -565,7 +583,7 @@ footer {
     <div class="plist">
 
       <div class="pitem warn">
-        <span class="pbadge">Config</span>
+        <span class="pbadge">Webhook</span>
         <div class="ptext">
           <p>Configurar webhook de Instagram en Meta Business Portal</p>
           <small>URL: /webhook/instagram · Verify token: brain_omni_ig · Campo: messages</small>
@@ -573,6 +591,30 @@ footer {
       </div>
 
       <div class="pitem warn">
+        <span class="pbadge">Webhook</span>
+        <div class="ptext">
+          <p>Configurar webhook de Facebook Messenger en Meta Business Portal</p>
+          <small>URL: /webhook/facebook · FACEBOOK_VERIFY_TOKEN · Campo: messages, messaging_postbacks</small>
+        </div>
+      </div>
+
+      <div class="pitem warn">
+        <span class="pbadge">DB</span>
+        <div class="ptext">
+          <p>Correr migración 005 + registrar cuentas FB y TikTok en DB</p>
+          <small>tools/setup_fb_tiktok.sh automatiza este proceso desde Termux</small>
+        </div>
+      </div>
+
+      <div class="pitem warn">
+        <span class="pbadge">API</span>
+        <div class="ptext">
+          <p>Aprobación de TikTok Comment Reply API</p>
+          <small>Requiere solicitud en TikTok for Developers con app de negocio aprobada</small>
+        </div>
+      </div>
+
+      <div class="pitem minor">
         <span class="pbadge">DB</span>
         <div class="ptext">
           <p>Registrar cuenta Business en <span class="code">instagram_accounts</span></p>
@@ -581,10 +623,10 @@ footer {
       </div>
 
       <div class="pitem minor">
-        <span class="pbadge">Deuda</span>
+        <span class="pbadge">Next</span>
         <div class="ptext">
-          <p>Resolver falsos positivos de auditor en providers.py</p>
-          <small>4 ocurrencias de "todo" en español detectadas como TODO inglés — sin impacto funcional</small>
+          <p>Agentes Internos — endpoints admin para invocación on-demand</p>
+          <small>POST /api/admin/agents/{channel}/internal/query para IG-Int, FB-Int, TT-Int</small>
         </div>
       </div>
 
@@ -609,7 +651,7 @@ footer {
         <div class="anum-lbl">Crítico</div>
       </div>
       <div class="anum">
-        <div class="anum-val amber">4</div>
+        <div class="anum-val amber">5</div>
         <div class="anum-lbl">Medio</div>
       </div>
       <div class="anum">
@@ -617,7 +659,7 @@ footer {
         <div class="anum-lbl">Bajo</div>
       </div>
     </div>
-    <div class="audit-note">27 módulos · 18 tests · 27 notas · vault-brain-omni/ en Obsidian</div>
+    <div class="audit-note">37 módulos · 18 tests · vault-brain-omni/ actualizado en Obsidian</div>
   </section>
 
   <!-- STACK -->
@@ -633,7 +675,11 @@ footer {
       <div class="sitem"><span class="sname">HuggingFace</span><span class="sval">✓ key set</span></div>
       <div class="sitem"><span class="sname">Groq</span><span class="sval">✓ key set</span></div>
       <div class="sitem"><span class="sname">WhatsApp Cloud API</span><span class="sval">✓ live</span></div>
-      <div class="sitem"><span class="sname">Instagram Graph API</span><span class="sval na">⚠ pendiente</span></div>
+      <div class="sitem"><span class="sname">Instagram Graph API</span><span class="sval na">⚠ webhook pendiente</span></div>
+      <div class="sitem"><span class="sname">Facebook Messenger API</span><span class="sval na">⚠ webhook pendiente</span></div>
+      <div class="sitem"><span class="sname">TikTok Comment Reply API</span><span class="sval na">⚠ aprobación pendiente</span></div>
+      <div class="sitem"><span class="sname">Scope Engine · 7 agentes</span><span class="sval">✓ live</span></div>
+      <div class="sitem"><span class="sname">agent_configs (DB)</span><span class="sval na">⚠ migración pendiente</span></div>
       <div class="sitem"><span class="sname">Admin Panel /panel</span><span class="sval">✓ live</span></div>
       <div class="sitem"><span class="sname">ADMIN_API_TOKEN</span><span class="sval">✓ configurado</span></div>
       <div class="sitem"><span class="sname">RAG · pgvector</span><span class="sval">✓ live</span></div>
@@ -642,7 +688,7 @@ footer {
   </section>
 
   <footer>
-    <div class="foot-txt">brain-omni · actualizado 17 ago 2026 · v0.4.0 · github.com/vicbrak2/brain-omni</div>
+    <div class="foot-txt">brain-omni · actualizado 17 ago 2026 · v0.5.0 · github.com/vicbrak2/brain-omni</div>
   </footer>
 
 </div>
@@ -651,7 +697,7 @@ footer {
   // Animate progress bar on load
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      document.getElementById('pbar').style.width = '92%';
+      document.getElementById('pbar').style.width = '97%';
     });
   });
 </script>

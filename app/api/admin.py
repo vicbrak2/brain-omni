@@ -10,10 +10,13 @@ import logging
 from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
+from app.core.agent_prompts import get_scope_header
 from app.core.config import settings
 from app.core.embeddings import chunk_text, embed_chunks, vec_to_str
+from app.core.scope import Channel, Scope
 from app.db.connection import admin_conn
 from app.db.repos import admin as admin_repo
+from app.db.repos import agent_configs as agent_configs_repo
 from app.db.repos import knowledge as knowledge_repo
 
 logger = logging.getLogger(__name__)
@@ -59,6 +62,17 @@ class DocCreate(BaseModel):
     title: str = Field(..., min_length=2, max_length=200)
     content: str = Field(..., min_length=10, max_length=50_000)
     doc_type: str = Field("custom", pattern=r"^(faq|product|policy|custom)$")
+
+
+class AgentScopeConfigIn(BaseModel):
+    """Config de un agente para un (canal, scope) específico."""
+    system_prompt: str | None = Field(None, max_length=8000,
+        description="Custom prompt del tenant. None = usar template default.")
+    temperature: float | None = Field(None, ge=0.0, le=1.0)
+    max_tokens: int | None = Field(None, ge=64, le=4096)
+    escalation_channel: str | None = Field(None,
+        pattern=r"^(whatsapp|instagram|facebook|tiktok|human)$")
+    escalation_after_msgs: int = Field(0, ge=0, le=50)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
@@ -108,6 +122,85 @@ async def upsert_config(
             handoff_threshold=body.handoff_threshold,
         )
     return {"status": "saved"}
+
+
+# ── Agent scope configs ───────────────────────────────────────────────────────
+
+_VALID_CHANNELS = {c.value for c in Channel}
+_VALID_SCOPES   = {s.value for s in Scope}
+
+
+@router.get("/tenants/{tenant_id}/agents")
+async def list_agent_configs(tenant_id: str, _: None = Auth) -> list[dict]:
+    """Lista todas las configuraciones de agentes del tenant (todos los canales y scopes)."""
+    async with admin_conn() as conn:
+        configs = await agent_configs_repo.list_configs(conn, tenant_id, active_only=False)
+    # Agregar scope_header_preview para cada config
+    for cfg in configs:
+        cfg["scope_header"] = get_scope_header(cfg["channel"], cfg["scope"])
+    return configs
+
+
+@router.get("/tenants/{tenant_id}/agents/{channel}/{scope}")
+async def get_agent_config_by_scope(
+    tenant_id: str, channel: str, scope: str, _: None = Auth
+) -> dict:
+    """Obtiene la config de un agente para (tenant, canal, scope)."""
+    if channel not in _VALID_CHANNELS:
+        raise HTTPException(status_code=400, detail=f"Canal inválido: {channel}")
+    if scope not in _VALID_SCOPES:
+        raise HTTPException(status_code=400, detail=f"Scope inválido: {scope}")
+
+    async with admin_conn() as conn:
+        cfg = await agent_configs_repo.get_config(conn, tenant_id, channel, scope)
+
+    return {
+        "tenant_id":    tenant_id,
+        "channel":      channel,
+        "scope":        scope,
+        "system_prompt":      cfg["system_prompt"] if cfg else None,
+        "temperature":        cfg["temperature"]   if cfg else None,
+        "max_tokens":         cfg["max_tokens"]    if cfg else None,
+        "escalation_channel": cfg.get("escalation_channel") if cfg else None,
+        "escalation_after_msgs": cfg["escalation_after_msgs"] if cfg else 0,
+        "scope_header": get_scope_header(channel, scope),   # siempre incluido (read-only)
+    }
+
+
+@router.put("/tenants/{tenant_id}/agents/{channel}/{scope}")
+async def upsert_agent_config_by_scope(
+    tenant_id: str,
+    channel: str,
+    scope: str,
+    body: AgentScopeConfigIn,
+    _: None = Auth,
+) -> dict:
+    """Crea o actualiza la config de un agente para (tenant, canal, scope)."""
+    if channel not in _VALID_CHANNELS:
+        raise HTTPException(status_code=400, detail=f"Canal inválido: {channel}")
+    if scope not in _VALID_SCOPES:
+        raise HTTPException(status_code=400, detail=f"Scope inválido: {scope}")
+
+    # Los agentes internos no pueden escalar
+    if scope == Scope.INTERNAL.value and body.escalation_channel:
+        raise HTTPException(
+            status_code=400,
+            detail="Los agentes internos no pueden tener canal de escalación",
+        )
+
+    async with admin_conn() as conn:
+        await agent_configs_repo.upsert_config(
+            conn,
+            tenant_id=tenant_id,
+            channel=channel,
+            scope=scope,
+            system_prompt=body.system_prompt,
+            temperature=body.temperature,
+            max_tokens=body.max_tokens,
+            escalation_channel=body.escalation_channel,
+            escalation_after_msgs=body.escalation_after_msgs,
+        )
+    return {"status": "saved", "channel": channel, "scope": scope}
 
 
 # ── Knowledge docs ────────────────────────────────────────────────────────────

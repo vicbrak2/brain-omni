@@ -596,6 +596,104 @@ a { color: var(--accent); text-decoration: none; }
 #toast.success { background: var(--accent-dim); }
 #toast.error   { background: var(--danger); }
 
+/* ─── AGENTS SECTION ─── */
+.agent-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.agent-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .12s;
+  min-height: var(--tap);
+}
+.agent-tab:hover {
+  background: var(--accent-bg);
+  border-color: rgba(30,186,140,.35);
+  color: var(--accent);
+}
+.agent-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.scope-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.scope-tab {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  min-height: var(--tap);
+  transition: all .12s;
+  letter-spacing: .03em;
+}
+.scope-tab.ext.active { background: rgba(16,185,129,.12); color: #10b981; border-color: #10b981; }
+.scope-tab.int.active { background: rgba(245,158,11,.12);  color: #f59e0b; border-color: #f59e0b; }
+.scope-tab:not(.active):hover { background: var(--surface); }
+
+.scope-header-preview {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 12px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.scope-header-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.scope-header-label button {
+  font-size: 10px;
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.scope-header-label button:hover { color: var(--text-muted); }
+
+.agent-no-internal {
+  font-size: 13px;
+  color: var(--text-faint);
+  padding: 12px 0;
+  font-style: italic;
+}
+
 /* ─── KNOWLEDGE DOCS ─── */
 .docs-empty {
   padding: 12px 0;
@@ -925,6 +1023,67 @@ a { color: var(--accent); text-decoration: none; }
             </div>
           </div>
 
+          <!-- AGENTS -->
+          <div class="form-section">
+            <div class="section-label">Agentes — Configuración por canal y scope</div>
+
+            <!-- Channel tabs -->
+            <div class="agent-tabs" id="agent-channel-tabs">
+              <button class="agent-tab active" data-ch="whatsapp"  onclick="selectAgentChannel('whatsapp')">💬 WhatsApp</button>
+              <button class="agent-tab"        data-ch="instagram" onclick="selectAgentChannel('instagram')">📸 Instagram</button>
+              <button class="agent-tab"        data-ch="facebook"  onclick="selectAgentChannel('facebook')">📘 Facebook</button>
+              <button class="agent-tab"        data-ch="tiktok"    onclick="selectAgentChannel('tiktok')">🎵 TikTok</button>
+            </div>
+
+            <!-- Scope tabs -->
+            <div class="scope-tabs" id="agent-scope-tabs">
+              <button class="scope-tab ext active" data-sc="external" onclick="selectAgentScope('external')">Externo · Público</button>
+              <button class="scope-tab int"         data-sc="internal" onclick="selectAgentScope('internal')">Interno · Equipo</button>
+            </div>
+
+            <!-- Scope header preview (read-only) -->
+            <div id="scope-header-wrap">
+              <div class="scope-header-label">
+                <span>SCOPE_HEADER — prepended por el backend (solo lectura)</span>
+                <button onclick="toggleScopePreview()" id="scope-preview-toggle">▾ ocultar</button>
+              </div>
+              <div class="scope-header-preview" id="scope-header-preview">…</div>
+            </div>
+
+            <!-- WhatsApp has no internal scope -->
+            <div id="agent-no-internal" class="agent-no-internal" style="display:none">
+              WhatsApp solo tiene scope <strong>Externo</strong>. El canal interno no aplica para mensajería directa.
+            </div>
+
+            <!-- Custom prompt for this agent -->
+            <div class="field" id="agent-prompt-wrap">
+              <label>Prompt personalizado del tenant <span style="font-weight:400;color:var(--text-faint)">(opcional — se agrega después del SCOPE_HEADER)</span></label>
+              <div class="prompt-wrap">
+                <textarea class="prompt-area" id="agent-system-prompt"
+                  placeholder="Personalización adicional para este agente. El SCOPE_HEADER de arriba siempre se aplica primero."
+                  oninput="updateAgentCharCount()" style="min-height:120px"></textarea>
+                <span class="char-count" id="agent-char-count">0 / 8000</span>
+              </div>
+            </div>
+
+            <!-- Escalation (external only) -->
+            <div class="field" id="agent-escalation-wrap">
+              <label>Canal de escalación <span style="font-weight:400;color:var(--text-faint)">(solo scope externo)</span></label>
+              <select id="agent-escalation-channel" style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;min-height:var(--tap);outline:none;-webkit-appearance:none">
+                <option value="">Sin escalación automática</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="human">Agente humano</option>
+              </select>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button class="btn btn-primary" id="save-agent-btn" onclick="saveAgentConfig()" style="width:auto;flex:1">
+                Guardar configuración del agente
+              </button>
+              <button class="btn btn-ghost" onclick="loadAgentConfig()">Revertir</button>
+            </div>
+          </div>
+
           <!-- KNOWLEDGE BASE -->
           <div class="form-section">
             <div class="section-label">Base de conocimiento (RAG)</div>
@@ -1179,6 +1338,8 @@ async function selectTenant(id, name) {
   document.getElementById('config-form').style.display = 'flex';
   await loadConfig(id);
   await loadDocs(id);
+  renderScopeHeader();
+  await loadAgentConfig();
   showMobileConfig();
 }
 
@@ -1289,6 +1450,118 @@ function toast(msg, type = '') {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.className = ''; }, 3000);
 }
+
+// ── Agents ────────────────────────────────────────────────────────────────────
+
+// Scope headers (mirrors app/core/agent_prompts.py — kept in sync manually)
+const SCOPE_HEADERS = {
+  'whatsapp:external':  '[SCOPE: WHATSAPP EXTERNO — ATENCIÓN AL CLIENTE]\nAtiende clientes reales vía WhatsApp Business.\n✓ Responder preguntas, buscar en KB, escalar.\n✗ Revelar datos de otros clientes, métricas internas.',
+  'instagram:external': '[SCOPE: INSTAGRAM EXTERNO — MODERACIÓN Y ATENCIÓN EN DMS]\nGestiona DMs de seguidores con tono cercano.\n✓ Responder consultas, redirigir a WA, moderar.\n✗ Ver estadísticas, revelar DMs de otros usuarios.',
+  'facebook:external':  '[SCOPE: FACEBOOK EXTERNO — SOPORTE EN MESSENGER]\nSoporte a clientes en Messenger, orientado a resolución.\n✓ Responder preguntas, gestionar reclamos, usar KB.\n✗ Revelar info de otros clientes, acceder a analytics.',
+  'tiktok:external':    '[SCOPE: TIKTOK EXTERNO — MODERACIÓN DE COMENTARIOS]\nResponde comentarios con tono joven y casual.\n✓ Responder, mantener ambiente positivo, redirigir.\n✗ Revelar info interna, acceder a estadísticas.',
+  'instagram:internal': '[SCOPE: INSTAGRAM INTERNO — INSPIRACIÓN Y ANÁLISIS]\nAsistente de marketing: análisis y contenido.\n✓ Analizar, sugerir reels/stories, calendarios.\n✗ Enviar DMs, publicar sin aprobación humana.',
+  'facebook:internal':  '[SCOPE: FACEBOOK INTERNO — ANÁLISIS DE AUDIENCIA]\nInsights accionables para el equipo de negocios.\n✓ Reportes, FAQs recurrentes, plantillas de soporte.\n✗ Enviar Messenger, realizar acciones publicitarias.',
+  'tiktok:internal':    '[SCOPE: TIKTOK INTERNO — ESTRATEGIA DE CONTENIDO]\nGuía creativa: tendencias virales y guiones.\n✓ Analizar comentarios, sugerir guiones, hashtags.\n✗ Responder comentarios, publicar sin aprobación.',
+};
+
+// Channels that have no internal scope
+const NO_INTERNAL = new Set(['whatsapp']);
+
+let agentChannel = 'whatsapp';
+let agentScope   = 'external';
+let scopePreviewOpen = true;
+
+function selectAgentChannel(ch) {
+  agentChannel = ch;
+  document.querySelectorAll('.agent-tab').forEach(t => t.classList.toggle('active', t.dataset.ch === ch));
+  // WhatsApp has no internal — force external
+  if (NO_INTERNAL.has(ch) && agentScope === 'internal') {
+    agentScope = 'external';
+    document.querySelectorAll('.scope-tab').forEach(t => t.classList.toggle('active', t.dataset.sc === 'external'));
+  }
+  document.getElementById('agent-no-internal').style.display = NO_INTERNAL.has(ch) ? 'block' : 'none';
+  document.getElementById('agent-scope-tabs').style.opacity  = NO_INTERNAL.has(ch) ? '0.4' : '1';
+  document.getElementById('agent-scope-tabs').style.pointerEvents = NO_INTERNAL.has(ch) ? 'none' : '';
+  renderScopeHeader();
+  loadAgentConfig();
+}
+
+function selectAgentScope(sc) {
+  if (NO_INTERNAL.has(agentChannel) && sc === 'internal') return;
+  agentScope = sc;
+  document.querySelectorAll('.scope-tab').forEach(t => t.classList.toggle('active', t.dataset.sc === sc));
+  // Show/hide escalation field
+  document.getElementById('agent-escalation-wrap').style.display = sc === 'external' ? '' : 'none';
+  renderScopeHeader();
+  loadAgentConfig();
+}
+
+function renderScopeHeader() {
+  const key = `${agentChannel}:${agentScope}`;
+  document.getElementById('scope-header-preview').textContent = SCOPE_HEADERS[key] || '(sin scope header definido)';
+}
+
+function toggleScopePreview() {
+  scopePreviewOpen = !scopePreviewOpen;
+  const preview = document.getElementById('scope-header-preview');
+  const toggle  = document.getElementById('scope-preview-toggle');
+  preview.style.display = scopePreviewOpen ? '' : 'none';
+  toggle.textContent    = scopePreviewOpen ? '▾ ocultar' : '▸ mostrar';
+}
+
+function updateAgentCharCount() {
+  const ta = document.getElementById('agent-system-prompt');
+  const cc = document.getElementById('agent-char-count');
+  const len = ta.value.length;
+  cc.textContent = `${len.toLocaleString()} / 8000`;
+  cc.classList.toggle('warn', len > 7200);
+}
+
+async function loadAgentConfig() {
+  if (!currentTenantId) return;
+  document.getElementById('agent-system-prompt').value = '';
+  document.getElementById('agent-escalation-channel').value = '';
+  updateAgentCharCount();
+
+  const res = await api(`/api/admin/tenants/${currentTenantId}/agents/${agentChannel}/${agentScope}`);
+  if (!res.ok) return;
+  const cfg = await res.json();
+  document.getElementById('agent-system-prompt').value = cfg.system_prompt || '';
+  document.getElementById('agent-escalation-channel').value = cfg.escalation_channel || '';
+  updateAgentCharCount();
+}
+
+async function saveAgentConfig() {
+  const btn = document.getElementById('save-agent-btn');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  const body = {
+    system_prompt:       document.getElementById('agent-system-prompt').value || null,
+    escalation_channel:  agentScope === 'external'
+                          ? (document.getElementById('agent-escalation-channel').value || null)
+                          : null,
+    escalation_after_msgs: 0,
+  };
+
+  const res = await api(`/api/admin/tenants/${currentTenantId}/agents/${agentChannel}/${agentScope}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Guardar configuración del agente';
+  if (res.ok) toast(`Agente ${agentChannel.toUpperCase()}-${agentScope} guardado ✓`, 'success');
+  else toast('Error al guardar el agente', 'error');
+}
+
+// Init scope header on first load
+document.addEventListener('DOMContentLoaded', () => {
+  renderScopeHeader();
+  // Hide escalation initially only if scope is internal (starts as external, so visible)
+  document.getElementById('agent-escalation-wrap').style.display = '';
+});
 
 // ── Knowledge Docs ────────────────────────────────────────────────────────────
 async function loadDocs(tenantId) {
