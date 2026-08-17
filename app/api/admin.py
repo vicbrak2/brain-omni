@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 from app.core.config import settings
@@ -156,6 +156,7 @@ async def create_doc(tenant_id: str, body: DocCreate, _: None = Auth) -> dict:
 
 
 @router.delete("/tenants/{tenant_id}/docs/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_doc(tenant_id: str, doc_id: str, _: None = Auth) -> None:
+async def delete_doc(tenant_id: str, doc_id: str, _: None = Auth) -> Response:
     async with admin_conn() as conn:
         await knowledge_repo.delete_doc(conn, tenant_id=tenant_id, doc_id=doc_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
