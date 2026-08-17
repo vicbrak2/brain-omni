@@ -1,10 +1,12 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.core.config
+paquete: app.core
 ---
 
 # config
 
+**Módulo:** `app.core.config`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
@@ -14,4 +16,11 @@ _Sin dependencias locales_
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[api.admin]]
+- [[webhook]]
+- [[embeddings]]
+- [[instagram_sender]]
+- [[whatsapp_sender]]
+- [[connection]]
+- [[settings]]
+- [[whatsapp]]

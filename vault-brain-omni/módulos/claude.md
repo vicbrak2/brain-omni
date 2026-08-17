@@ -1,10 +1,12 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.core.claude
+paquete: app.core
 ---
 
 # claude
 
+**Módulo:** `app.core.claude`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
@@ -15,4 +17,5 @@ módulo: app.core.claude
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[instagram]]
+- [[whatsapp]]

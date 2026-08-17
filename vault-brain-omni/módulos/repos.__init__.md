@@ -1,10 +1,12 @@
 ---
 tags: [módulo, brain-omni]
-módulo: app.db.repos.admin
+módulo: app.db.repos.__init__
+paquete: app.db.repos
 ---
 
-# admin
+# __init__
 
+**Módulo:** `app.db.repos.__init__`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 

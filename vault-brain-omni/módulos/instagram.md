@@ -1,17 +1,27 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.workers.instagram
+paquete: app.workers
 ---
 
 # instagram
 
+**Módulo:** `app.workers.instagram`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[claude]]
+- [[embeddings]]
+- [[instagram_sender]]
+- [[connection]]
+- [[conversations]]
+- [[knowledge]]
+- [[messages]]
+- [[tenants]]
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[settings]]
+- [[test_parsers]]

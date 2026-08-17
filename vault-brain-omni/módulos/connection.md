@@ -1,17 +1,21 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.db.connection
+paquete: app.db
 ---
 
 # connection
 
+**Módulo:** `app.db.connection`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[config]]
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[api.admin]]
+- [[instagram]]
+- [[whatsapp]]

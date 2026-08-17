@@ -68,28 +68,43 @@ proyecto: brain-omni
   - 📄 `Arquitectura.md`
 - 📁 `vault-brain-omni`
   - 📁 `módulos`
-    - 📄 `__init__.md`
+    - 📄 `api.__init__.md`
+    - 📄 `api.admin.md`
+    - 📄 `app.__init__.md`
     - 📄 `brain.md`
     - 📄 `claude.md`
     - 📄 `config.md`
+    - 📄 `conftest.md`
     - 📄 `connection.md`
     - 📄 `conversations.md`
+    - 📄 `core.__init__.md`
+    - 📄 `db.__init__.md`
+    - 📄 `embeddings.md`
     - 📄 `instagram.md`
     - 📄 `instagram_sender.md`
+    - 📄 `knowledge.md`
     - 📄 `messages.md`
     - 📄 `models.md`
     - 📄 `providers.md`
+    - 📄 `repos.__init__.md`
+    - 📄 `repos.admin.md`
     - 📄 `settings.md`
     - 📄 `tenants.md`
+    - 📄 `test_parsers.md`
+    - 📄 `test_signature.md`
+    - 📄 `tests.__init__.md`
     - 📄 `webhook.md`
     - 📄 `whatsapp.md`
     - 📄 `whatsapp_sender.md`
+    - 📄 `workers.__init__.md`
   - 📄 `00 - brain-omni Index.md`
+  - 📄 `Complejidad Alta.md`
   - 📄 `Estructura del Proyecto.md`
   - 📄 `Funcion Larga.md`
   - 📄 `Grafo de Módulos.md`
-  - 📄 `Sin Tests.md`
+  - 📄 `Import Circular.md`
   - 📄 `Todo Pendiente.md`
+- 📄 `brain-omni-auditoria.json`
 - 📄 `Dockerfile`
 - 📄 `Dockerfile.worker`
 - 📄 `main.py`

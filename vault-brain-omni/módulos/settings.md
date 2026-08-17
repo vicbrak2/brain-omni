@@ -1,16 +1,20 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.workers.settings
+paquete: app.workers
 ---
 
 # settings
 
+**Módulo:** `app.workers.settings`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[config]]
+- [[instagram]]
+- [[whatsapp]]
 
 ## Importado por
 

@@ -1,12 +1,12 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.conftest
-paquete: tests
+módulo: app.api.__init__
+paquete: app.api
 ---
 
-# conftest
+# __init__
 
-**Módulo:** `tests.conftest`  
+**Módulo:** `app.api.__init__`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 

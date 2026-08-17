@@ -1,17 +1,28 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.workers.whatsapp
+paquete: app.workers
 ---
 
 # whatsapp
 
+**Módulo:** `app.workers.whatsapp`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[claude]]
+- [[config]]
+- [[embeddings]]
+- [[whatsapp_sender]]
+- [[connection]]
+- [[conversations]]
+- [[knowledge]]
+- [[messages]]
+- [[tenants]]
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[settings]]
+- [[test_parsers]]

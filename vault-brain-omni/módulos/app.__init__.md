@@ -1,10 +1,12 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.__init__
+módulo: app.__init__
+paquete: app
 ---
 
 # __init__
 
+**Módulo:** `app.__init__`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 

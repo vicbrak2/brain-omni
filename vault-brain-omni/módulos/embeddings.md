@@ -1,17 +1,21 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.core.embeddings
+paquete: app.core
 ---
 
 # embeddings
 
+**Módulo:** `app.core.embeddings`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[config]]
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[api.admin]]
+- [[instagram]]
+- [[whatsapp]]

@@ -1,17 +1,19 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.api.webhook
+paquete: app.api
 ---
 
 # webhook
 
+**Módulo:** `app.api.webhook`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[config]]
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[test_signature]]

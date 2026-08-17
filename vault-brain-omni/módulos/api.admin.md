@@ -1,18 +1,22 @@
 ---
 tags: [módulo, brain-omni]
-módulo: tests.conftest
-paquete: tests
+módulo: app.api.admin
+paquete: app.api
 ---
 
-# conftest
+# admin
 
-**Módulo:** `tests.conftest`  
+**Módulo:** `app.api.admin`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[config]]
+- [[embeddings]]
+- [[connection]]
+- [[repos.admin]]
+- [[knowledge]]
 
 ## Importado por
 

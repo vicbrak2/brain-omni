@@ -1,16 +1,19 @@
 ---
 tags: [módulo, brain-omni]
 módulo: tests.test_parsers
+paquete: tests
 ---
 
 # test_parsers
 
+**Módulo:** `tests.test_parsers`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
 ## Importa
 
-_Sin dependencias locales_
+- [[instagram]]
+- [[whatsapp]]
 
 ## Importado por
 

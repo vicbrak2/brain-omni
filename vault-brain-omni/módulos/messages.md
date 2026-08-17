@@ -1,10 +1,12 @@
 ---
 tags: [módulo, brain-omni]
 módulo: app.db.repos.messages
+paquete: app.db.repos
 ---
 
 # messages
 
+**Módulo:** `app.db.repos.messages`  
 **Proyecto:** [[00 - brain-omni Index|brain-omni]]  
 #módulo
 
@@ -14,4 +16,5 @@ _Sin dependencias locales_
 
 ## Importado por
 
-_No importado por otros módulos_
+- [[instagram]]
+- [[whatsapp]]
