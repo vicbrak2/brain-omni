@@ -1,4 +1,4 @@
-name: CI
+name: CI & Deploy
 
 on:
   push:
@@ -23,18 +23,63 @@ jobs:
       - name: Verificar que todos los modulos importan correctamente
         run: |
           python -c "
+          # ── Core ──────────────────────────────────────────────────────
           import main
           import app.core.config
+          import app.core.scope
+          import app.core.agent_prompts
+          import app.core.brain
+          import app.core.embeddings
+          import app.core.facebook_sender
+          import app.core.tiktok_sender
+
+          # ── API ───────────────────────────────────────────────────────
           import app.api.webhook
+          import app.api.admin
+
+          # ── Workers ───────────────────────────────────────────────────
           import app.workers.whatsapp
+          import app.workers.instagram
+          import app.workers.facebook
+          import app.workers.tiktok
+          import app.workers.settings
+
+          # ── DB ────────────────────────────────────────────────────────
           import app.db.connection
           import app.db.repos.tenants
           import app.db.repos.conversations
           import app.db.repos.messages
-          print('OK: todos los modulos importados')
+          import app.db.repos.knowledge
+          import app.db.repos.agent_configs
+
+          print('OK: todos los modulos importados (', __import__('importlib').import_module('app.core.scope').Channel.__members__, ')')
           "
         env:
           WHATSAPP_VERIFY_TOKEN: ci_token
           WHATSAPP_APP_SECRET: ci_secret
+          FACEBOOK_APP_SECRET: ci_fb_secret
+          FACEBOOK_VERIFY_TOKEN: ci_fb_verify
+          FACEBOOK_ACCESS_TOKEN: ci_fb_token
+          FACEBOOK_PAGE_ID: "0"
+          TIKTOK_ACCESS_TOKEN: ci_tt_token
+          TIKTOK_APP_SECRET: ci_tt_secret
+          TIKTOK_CLIENT_KEY: ci_tt_key
           REDIS_URL: redis://localhost:6379
           DATABASE_URL: postgresql://localhost/brain_omni
+
+  deploy:
+    name: Deploy a Railway
+    runs-on: ubuntu-latest
+    needs: ci
+    # Solo en push a main (no en PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy
+        run: railway up --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
